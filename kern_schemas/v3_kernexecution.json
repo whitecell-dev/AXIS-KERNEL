@@ -1,0 +1,306 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.calyx.ai/kern/v3/kernexecution.json",
+  "title": "KERN v3 / Execution Configuration Schema",
+  "description": "Domain-agnostic schema defining execution semantics and runtime configuration for deterministic logic engines",
+  "engineVersion": "3.0.0",
+  "type": "object",
+  
+  "$defs": {
+    "ExecutionMode": {
+      "type": "string",
+      "enum": ["iterative", "dag", "reactive", "solver", "backward", "rete", "ledger", "streaming"],
+      "tsType": "'iterative' | 'dag' | 'reactive' | 'solver' | 'backward' | 'rete' | 'ledger' | 'streaming'"
+    },
+    
+    "IntegrationMode": {
+      "type": "string",
+      "enum": ["full", "sandbox", "diagnostic"],
+      "tsType": "'full' | 'sandbox' | 'diagnostic'"
+    },
+    
+    "LedgerMode": {
+      "type": "string",
+      "enum": ["append_only", "ephemeral", "deterministic_replay", "immutable"],
+      "tsType": "'append_only' | 'ephemeral' | 'deterministic_replay' | 'immutable'"
+    },
+    
+    "ErrorHandling": {
+      "type": "string",
+      "enum": ["halt", "continue", "retry", "rollback", "collect"],
+      "tsType": "'halt' | 'continue' | 'retry' | 'rollback' | 'collect'"
+    },
+    
+    "IsolationLevel": {
+      "type": "string",
+      "enum": ["none", "read_uncommitted", "read_committed", "repeatable_read", "serializable"],
+      "tsType": "'none' | 'read_uncommitted' | 'read_committed' | 'repeatable_read' | 'serializable'"
+    },
+    
+    "RuntimeConstraints": {
+      "type": "object",
+      "properties": {
+        "maxIterations": { 
+          "type": "integer", 
+          "minimum": 1, 
+          "maximum": 10000, 
+          "default": 50 
+        },
+        "timeoutMs": { 
+          "type": "integer", 
+          "minimum": 100, 
+          "maximum": 300000, 
+          "default": 30000 
+        },
+        "maxMemoryMB": { 
+          "type": "number", 
+          "minimum": 1, 
+          "default": 512 
+        },
+        "maxCpuMs": { 
+          "type": "integer", 
+          "minimum": 100 
+        },
+        "maxRulesPerIteration": { 
+          "type": "integer", 
+          "minimum": 1, 
+          "default": 1000 
+        }
+      },
+      "tsType": "RuntimeConstraints"
+    },
+    
+    "ConvergenceConfig": {
+      "type": "object",
+      "properties": {
+        "threshold": { 
+          "type": "number", 
+          "minimum": 0, 
+          "maximum": 1, 
+          "default": 1e-10 
+        },
+        "enabled": { "type": "boolean", "default": true },
+        "method": {
+          "type": "string",
+          "enum": ["delta", "hash", "semantic", "custom"],
+          "default": "delta",
+          "tsType": "'delta' | 'hash' | 'semantic' | 'custom'"
+        },
+        "stagnationLimit": { 
+          "type": "integer", 
+          "minimum": 1, 
+          "default": 3 
+        },
+        "earlyTermination": { "type": "boolean", "default": true }
+      },
+      "tsType": "ConvergenceConfig"
+    },
+    
+    "ParallelismConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean", "default": false },
+        "maxWorkers": { 
+          "type": "integer", 
+          "minimum": 1, 
+          "maximum": 32, 
+          "default": 1 
+        },
+        "strategy": {
+          "type": "string",
+          "enum": ["rule_level", "iteration_level", "primitive_level"],
+          "default": "rule_level",
+          "tsType": "'rule_level' | 'iteration_level' | 'primitive_level'"
+        },
+        "loadBalancing": {
+          "type": "string",
+          "enum": ["round_robin", "weighted", "priority", "dynamic"],
+          "default": "round_robin",
+          "tsType": "'round_robin' | 'weighted' | 'priority' | 'dynamic'"
+        }
+      },
+      "tsType": "ParallelismConfig"
+    },
+    
+    "SecurityConfig": {
+      "type": "object",
+      "properties": {
+        "isolationLevel": { "$ref": "#/$defs/IsolationLevel" },
+        "sandboxing": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "allowFileSystem": { "type": "boolean", "default": false },
+            "allowNetwork": { "type": "boolean", "default": false },
+            "allowProcesses": { "type": "boolean", "default": false },
+            "memoryLimit": { "type": "integer", "minimum": 1, "default": 128 }
+          }
+        },
+        "codeExecution": {
+          "type": "object",
+          "properties": {
+            "allowEval": { "type": "boolean", "default": false },
+            "allowDynamicImports": { "type": "boolean", "default": false },
+            "allowReflection": { "type": "boolean", "default": false },
+            "maxExpressionLength": { "type": "integer", "default": 1000 }
+          }
+        }
+      },
+      "tsType": "SecurityConfig"
+    }
+  },
+  
+  "properties": {
+    "execution": {
+      "type": "object",
+      "required": ["mode", "integrationMode"],
+      "properties": {
+        "mode": { "$ref": "#/$defs/ExecutionMode" },
+        "integrationMode": { "$ref": "#/$defs/IntegrationMode" },
+        "version": { "type": "string", "default": "3.0.0" },
+        "description": { "type": "string" },
+        "deterministic": { 
+          "type": "boolean", 
+          "default": true,
+          "description": "Whether execution must be deterministic and repeatable"
+        },
+        "constraints": { "$ref": "#/$defs/RuntimeConstraints" },
+        "convergence": { "$ref": "#/$defs/ConvergenceConfig" },
+        "parallelism": { "$ref": "#/$defs/ParallelismConfig" },
+        "security": { "$ref": "#/$defs/SecurityConfig" },
+        "errorHandling": {
+          "type": "object",
+          "properties": {
+            "onError": { "$ref": "#/$defs/ErrorHandling" },
+            "onViolation": { "$ref": "#/$defs/ErrorHandling" },
+            "onTimeout": { "$ref": "#/$defs/ErrorHandling" },
+            "maxRetries": { "type": "integer", "minimum": 0, "default": 0 },
+            "retryDelay": { "type": "integer", "minimum": 0, "default": 1000 }
+          }
+        },
+        "monitoring": {
+          "type": "object",
+          "properties": {
+            "enableAudit": { "type": "boolean", "default": true },
+            "enableInvariants": { "type": "boolean", "default": true },
+            "enableMetrics": { "type": "boolean", "default": true },
+            "enableProfiling": { "type": "boolean", "default": false },
+            "verboseLogging": { "type": "boolean", "default": false }
+          }
+        },
+        "ledgerMode": { "$ref": "#/$defs/LedgerMode" },
+        "stateManagement": {
+          "type": "object",
+          "properties": {
+            "persistent": { "type": "boolean", "default": false },
+            "snapshotting": { "type": "boolean", "default": false },
+            "snapshotInterval": { "type": "integer", "minimum": 1, "default": 10 },
+            "compression": { "type": "boolean", "default": false },
+            "encryption": { "type": "boolean", "default": false }
+          }
+        }
+      },
+      "tsType": "ExecutionConfig"
+    },
+    
+    "contracts": {
+      "type": "object",
+      "description": "Execution contracts defining runtime behavior guarantees",
+      "properties": {
+        "invariants": { "type": "string", "default": "./v3_invariant.json" },
+        "primitives": { "type": "string", "default": "./v3_primitives.json" },
+        "metrics": { "type": "string", "default": "./v3_metrics.json" },
+        "ledger": { "type": "string", "default": "./v3_mnemeledger.json" },
+        "guarantees": {
+          "type": "object",
+          "properties": {
+            "deterministic": { "type": "boolean", "default": true },
+            "auditable": { "type": "boolean", "default": true },
+            "reversible": { "type": "boolean", "default": false },
+            "consistent": { "type": "boolean", "default": true },
+            "isolated": { "type": "boolean", "default": true }
+          }
+        },
+        "sla": {
+          "type": "object",
+          "properties": {
+            "maxResponseTime": { "type": "integer", "minimum": 1 },
+            "minThroughput": { "type": "number", "minimum": 0 },
+            "maxErrorRate": { "type": "number", "minimum": 0, "maximum": 1 },
+            "availability": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      }
+    },
+    
+    "optimizations": {
+      "type": "object",
+      "description": "Performance optimization settings",
+      "properties": {
+        "caching": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "expressionCache": { "type": "boolean", "default": true },
+            "stateCache": { "type": "boolean", "default": false },
+            "resultCache": { "type": "boolean", "default": false },
+            "cacheSize": { "type": "integer", "minimum": 10, "default": 1000 },
+            "ttl": { "type": "integer", "minimum": 1000, "default": 300000 }
+          }
+        },
+        "compilation": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "jit": { "type": "boolean", "default": false },
+            "inlining": { "type": "boolean", "default": false },
+            "optimization": {
+              "type": "string",
+              "enum": ["none", "basic", "aggressive"],
+              "default": "basic",
+              "tsType": "'none' | 'basic' | 'aggressive'"
+            }
+          }
+        },
+        "gc": {
+          "type": "object",
+          "properties": {
+            "strategy": {
+              "type": "string",
+              "enum": ["automatic", "manual", "periodic"],
+              "default": "automatic",
+              "tsType": "'automatic' | 'manual' | 'periodic'"
+            },
+            "interval": { "type": "integer", "minimum": 1000, "default": 60000 },
+            "threshold": { "type": "number", "minimum": 0.1, "maximum": 0.9, "default": 0.8 }
+          }
+        }
+      }
+    },
+    
+    "diagnostics": {
+      "type": "object",
+      "description": "Diagnostic and debugging configuration",
+      "properties": {
+        "enabled": { "type": "boolean", "default": false },
+        "tracing": { "type": "boolean", "default": false },
+        "stepping": { "type": "boolean", "default": false },
+        "breakpoints": {
+          "type": "array",
+          "items": { "type": "string" },
+          "tsType": "string[]"
+        },
+        "watchExpressions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "tsType": "string[]"
+        },
+        "dumpState": { "type": "boolean", "default": false },
+        "verboseErrors": { "type": "boolean", "default": false }
+      }
+    }
+  },
+  
+  "required": ["execution"],
+  "additionalProperties": false
+}

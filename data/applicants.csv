@@ -1,0 +1,5 @@
+name,credit_score,annual_income,debt_to_income_ratio,requested_loan_amount
+John Doe,620,45000,0.45,250000
+Jane Smith,720,75000,0.35,350000
+Bob Johnson,550,35000,0.5,200000
+Alice Williams,680,65000,0.25,300000

@@ -1,0 +1,329 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.calyx.ai/kern/v3/primitives.json",
+  "title": "KERN v3 / Primitives Schema",
+  "description": "Domain-agnostic schema for the 8 core computation primitives in deterministic logic engines",
+  "engineVersion": "3.0.0",
+  "type": "object",
+  
+  "$defs": {
+    "PrimitiveBase": {
+      "type": "object",
+      "required": ["id", "type", "title", "implementation"],
+      "properties": {
+        "id": { 
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$"
+        },
+        "type": { "const": "primitive" },
+        "title": { "type": "string" },
+        "implementation": { 
+          "type": "string",
+          "enum": [
+            "EXPRESSION_EVALUATOR",
+            "CONTEXT_SANITIZER", 
+            "CONDITION_EVALUATOR",
+            "TEMPLATE_RESOLVER",
+            "STATE_MUTATOR",
+            "OBJECT_FLATTENER",
+            "RULE_APPLICATOR",
+            "ITERATION_MANAGER"
+          ],
+          "tsType": "'EXPRESSION_EVALUATOR' | 'CONTEXT_SANITIZER' | 'CONDITION_EVALUATOR' | 'TEMPLATE_RESOLVER' | 'STATE_MUTATOR' | 'OBJECT_FLATTENER' | 'RULE_APPLICATOR' | 'ITERATION_MANAGER'"
+        },
+        "status": { 
+          "type": "string",
+          "enum": ["active", "disabled", "debug"],
+          "default": "active",
+          "tsType": "'active' | 'disabled' | 'debug'"
+        },
+        "callCount": { "type": "integer", "minimum": 0, "default": 0 },
+        "version": { "type": "string", "default": "3.0.0" },
+        "description": { "type": "string" }
+      },
+      "tsType": "PrimitiveBase"
+    },
+    
+    "SecurityConstraints": {
+      "type": "object",
+      "properties": {
+        "maxLength": { "type": "integer", "minimum": 1, "maximum": 10000, "default": 1000 },
+        "timeoutMs": { "type": "integer", "minimum": 1, "default": 1000 },
+        "safeGlobals": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["Math", "Date", "parseInt", "parseFloat", "Number", "Boolean", "String"],
+          "tsType": "string[]"
+        },
+        "blacklist": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [
+            "process", "require", "global", "window", "this", "eval", "Function",
+            "fetch", "XMLHttpRequest", "postMessage", "import", "await", "constructor",
+            "prototype", "setTimeout", "setInterval", "while", "for", "do", "class"
+          ],
+          "tsType": "string[]"
+        },
+        "allowedPatterns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "tsType": "string[]"
+        }
+      },
+      "tsType": "SecurityConstraints"
+    }
+  },
+  
+  "properties": {
+    "primitives": {
+      "type": "object",
+      "description": "Collection of all available computation primitives",
+      "properties": {
+        "EXPRESSION_EVALUATOR": {
+          "allOf": [{ "$ref": "#/$defs/PrimitiveBase" }],
+          "properties": {
+            "implementation": { "const": "EXPRESSION_EVALUATOR" },
+            "spec": {
+              "allOf": [{ "$ref": "#/$defs/SecurityConstraints" }],
+              "properties": {
+                "pattern": {
+                  "type": "string",
+                  "default": "^[\\w\\d\\s\\.\\_\\+\\-\\*\\/\\%\\!\\=\\<\\>\\?\\:\\&\\|\\(\\)\\,\\[\\]\\'\\\"\\`]+$"
+                },
+                "strictMode": { "type": "boolean", "default": true },
+                "returnTypes": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "default": ["number", "string", "boolean", "object"],
+                  "tsType": "string[]"
+                }
+              }
+            }
+          }
+        },
+        
+        "CONTEXT_SANITIZER": {
+          "allOf": [{ "$ref": "#/$defs/PrimitiveBase" }],
+          "properties": {
+            "implementation": { "const": "CONTEXT_SANITIZER" },
+            "spec": {
+              "type": "object",
+              "properties": {
+                "flattenDelimiter": { "type": "string", "default": "_" },
+                "preserveStructure": { "type": "boolean", "default": false },
+                "maxDepth": { "type": "integer", "minimum": 1, "default": 10 },
+                "sanitizeKeys": { "type": "boolean", "default": true },
+                "allowedTypes": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "default": ["string", "number", "boolean", "object", "array"],
+                  "tsType": "string[]"
+                }
+              }
+            }
+          }
+        },
+        
+        "CONDITION_EVALUATOR": {
+          "allOf": [{ "$ref": "#/$defs/PrimitiveBase" }],
+          "properties": {
+            "implementation": { "const": "CONDITION_EVALUATOR" },
+            "spec": {
+              "allOf": [{ "$ref": "#/$defs/SecurityConstraints" }],
+              "properties": {
+                "fallbackOnError": { "type": "boolean", "default": false },
+                "logEvaluationErrors": { "type": "boolean", "default": true },
+                "maxConditionLength": { "type": "integer", "default": 500 },
+                "supportedOperators": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "default": ["==", "!=", "<", ">", "<=", ">=", "&&", "||", "!"],
+                  "tsType": "string[]"
+                }
+              }
+            }
+          }
+        },
+        
+        "TEMPLATE_RESOLVER": {
+          "allOf": [{ "$ref": "#/$defs/PrimitiveBase" }],
+          "properties": {
+            "implementation": { "const": "TEMPLATE_RESOLVER" },
+            "spec": {
+              "type": "object",
+              "properties": {
+                "templatePattern": { 
+                  "type": "string", 
+                  "default": "\\{\\{(.*?)\\}\\}" 
+                },
+                "typeCoercion": { 
+                  "type": "string", 
+                  "enum": ["smart", "strict", "lenient"],
+                  "default": "smart",
+                  "tsType": "'smart' | 'strict' | 'lenient'"
+                },
+                "detectIntent": { "type": "boolean", "default": true },
+                "builtinFunctions": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "default": ["now()", "uuid()", "random()"],
+                  "tsType": "string[]"
+                },
+                "maxNestingDepth": { "type": "integer", "default": 5 }
+              }
+            }
+          }
+        },
+        
+        "STATE_MUTATOR": {
+          "allOf": [{ "$ref": "#/$defs/PrimitiveBase" }],
+          "properties": {
+            "implementation": { "const": "STATE_MUTATOR" },
+            "spec": {
+              "type": "object",
+              "properties": {
+                "maxPathDepth": { "type": "integer", "minimum": 1, "default": 10 },
+                "createIntermediate": { "type": "boolean", "default": true },
+                "conflictResolution": {
+                  "type": "string",
+                  "enum": ["priority_override", "first_wins", "last_wins", "error", "merge"],
+                  "default": "priority_override",
+                  "tsType": "'priority_override' | 'first_wins' | 'last_wins' | 'error' | 'merge'"
+                },
+                "trackChanges": { "type": "boolean", "default": true },
+                "atomicUpdates": { "type": "boolean", "default": false }
+              }
+            }
+          }
+        },
+        
+        "OBJECT_FLATTENER": {
+          "allOf": [{ "$ref": "#/$defs/PrimitiveBase" }],
+          "properties": {
+            "implementation": { "const": "OBJECT_FLATTENER" },
+            "spec": {
+              "type": "object",
+              "properties": {
+                "delimiter": { "type": "string", "default": "_" },
+                "maxDepth": { "type": "integer", "minimum": 1, "default": 10 },
+                "preserveArrays": { "type": "boolean", "default": false },
+                "preserveNulls": { "type": "boolean", "default": true },
+                "keyTransform": {
+                  "type": "string",
+                  "enum": ["none", "camelCase", "snake_case", "kebab-case"],
+                  "default": "none",
+                  "tsType": "'none' | 'camelCase' | 'snake_case' | 'kebab-case'"
+                }
+              }
+            }
+          }
+        },
+        
+        "RULE_APPLICATOR": {
+          "allOf": [{ "$ref": "#/$defs/PrimitiveBase" }],
+          "properties": {
+            "implementation": { "const": "RULE_APPLICATOR" },
+            "spec": {
+              "type": "object",
+              "properties": {
+                "trackChanges": { "type": "boolean", "default": true },
+                "conflictLogging": { "type": "boolean", "default": true },
+                "atomicApplication": { "type": "boolean", "default": false },
+                "rollbackOnError": { "type": "boolean", "default": true },
+                "maxRulesPerIteration": { "type": "integer", "default": 1000 }
+              }
+            }
+          }
+        },
+        
+        "ITERATION_MANAGER": {
+          "allOf": [{ "$ref": "#/$defs/PrimitiveBase" }],
+          "properties": {
+            "implementation": { "const": "ITERATION_MANAGER" },
+            "spec": {
+              "type": "object",
+              "required": ["maxIterations"],
+              "properties": {
+                "maxIterations": { 
+                  "type": "integer", 
+                  "minimum": 1, 
+                  "maximum": 1000, 
+                  "default": 50 
+                },
+                "convergenceThreshold": { 
+                  "type": "number", 
+                  "minimum": 0, 
+                  "maximum": 1, 
+                  "default": 0 
+                },
+                "invariantValidation": { "type": "boolean", "default": true },
+                "progressTracking": { "type": "boolean", "default": true },
+                "earlyTermination": { "type": "boolean", "default": true }
+              }
+            }
+          }
+        }
+      },
+      "tsType": "Record<string, Primitive>"
+    },
+    
+    "contracts": {
+      "type": "object",
+      "description": "Defines execution contracts and dependencies between primitives",
+      "properties": {
+        "executionOrder": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [
+            "CONTEXT_SANITIZER",
+            "OBJECT_FLATTENER", 
+            "CONDITION_EVALUATOR",
+            "EXPRESSION_EVALUATOR",
+            "TEMPLATE_RESOLVER",
+            "STATE_MUTATOR",
+            "RULE_APPLICATOR",
+            "ITERATION_MANAGER"
+          ],
+          "tsType": "string[]"
+        },
+        "dependencies": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "tsType": "Record<string, string[]>"
+        },
+        "parallelizable": {
+          "type": "array",
+          "items": { "type": "string" },
+          "tsType": "string[]"
+        }
+      }
+    },
+    
+    "runtime": {
+      "type": "object",
+      "description": "Runtime configuration for primitive execution",
+      "properties": {
+        "isolationLevel": {
+          "type": "string",
+          "enum": ["strict", "sandboxed", "permissive"],
+          "default": "sandboxed",
+          "tsType": "'strict' | 'sandboxed' | 'permissive'"
+        },
+        "errorHandling": {
+          "type": "string",
+          "enum": ["halt", "skip", "log_continue"],
+          "default": "halt",
+          "tsType": "'halt' | 'skip' | 'log_continue'"
+        },
+        "metricsCollection": { "type": "boolean", "default": true }
+      }
+    }
+  },
+  
+  "required": ["primitives"],
+  "additionalProperties": false
+}

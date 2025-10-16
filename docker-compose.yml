@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  kern-engine:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: kern-engine-v3
+    restart: unless-stopped
+    volumes:
+      # Mount directories for persistence
+      - ./rules:/app/rules:ro
+      - ./data:/app/data:ro
+      - ./output:/app/output
+      - ./audit:/app/audit
+      - ./history:/app/history
+      - ./exports:/app/exports
+      # Mount database for persistence
+      - kern-db:/app/database
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      LOG_LEVEL: ${LOG_LEVEL:-normal}
+      DATABASE_PATH: /app/database/kern_state.db
+      HALT_ON_ERROR: ${HALT_ON_ERROR:-false}
+    networks:
+      - kern-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "console.log('healthy')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    # Use the working integration example
+    command: ["node", "src/integration-example.js", "init"]
+
+  # Example service for different execution modes
+  kern-execute:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: kern-execute
+    volumes:
+      - ./rules:/app/rules:ro
+      - ./data:/app/data:ro
+      - ./output:/app/output
+      - ./audit:/app/audit
+      - kern-db:/app/database
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_PATH: /app/database/kern_state.db
+    networks:
+      - kern-network
+    profiles: ["execute"]
+    command: ["node", "src/integration-example.js", "execute", "mortgage-rules.yaml", "applicants.csv"]
+
+  kern-batch:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: kern-batch
+    volumes:
+      - ./rules:/app/rules:ro
+      - ./data:/app/data:ro
+      - ./output:/app/output
+      - ./audit:/app/audit
+      - kern-db:/app/database
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_PATH: /app/database/kern_state.db
+    networks:
+      - kern-network
+    profiles: ["batch"]
+    command: ["node", "src/integration-example.js", "batch", "mortgage-rules.yaml", "applicants.csv"]
+
+volumes:
+  kern-db:
+    driver: local
+
+networks:
+  kern-network:
+    driver: bridge

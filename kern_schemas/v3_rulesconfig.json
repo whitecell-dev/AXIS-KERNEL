@@ -1,0 +1,283 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.calyx.ai/kern/v3/rulesconfig.json",
+  "title": "KERN v3 / Rules Configuration Schema",
+  "description": "Domain-agnostic schema for declarative rule sets and execution state",
+  "engineVersion": "3.0.0",
+  "type": "object",
+  
+  "$defs": {
+    "Rule": {
+      "type": "object",
+      "required": ["name", "priority", "if", "then"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$",
+          "description": "Unique rule identifier"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000,
+          "description": "Execution priority (lower = earlier)"
+        },
+        "if": {
+          "type": "string",
+          "maxLength": 2000,
+          "description": "Condition expression using safe evaluation"
+        },
+        "then": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "Field path to template expression mapping"
+          },
+          "tsType": "Record<string, string>"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable rule description"
+        },
+        "category": {
+          "type": "string",
+          "description": "Rule category for organization and filtering"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "version": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "tsType": "string[]"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Names of rules this rule depends on",
+          "tsType": "string[]"
+        }
+      },
+      "tsType": "Rule"
+    },
+    
+    "StateSchema": {
+      "type": "object",
+      "description": "Flexible schema for domain-specific state structures",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "additionalProperties": true,
+          "tsType": "Record<string, any>"
+        },
+        "required": {
+          "type": "array",
+          "items": { "type": "string" },
+          "tsType": "string[]"
+        },
+        "additionalProperties": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "tsType": "StateSchema"
+    },
+    
+    "ConflictRecord": {
+      "type": "object",
+      "required": ["field", "previousRule", "currentRule", "iteration"],
+      "properties": {
+        "field": { "type": "string" },
+        "previousRule": { "type": "string" },
+        "currentRule": { "type": "string" },
+        "previousValue": {},
+        "currentValue": {},
+        "resolution": { 
+          "type": "string",
+          "enum": ["override", "merge", "reject", "defer"],
+          "tsType": "'override' | 'merge' | 'reject' | 'defer'"
+        },
+        "iteration": { "type": "integer", "minimum": 1 },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "tsType": "ConflictRecord"
+    },
+    
+    "AuditEntry": {
+      "type": "object",
+      "required": ["timestamp", "level", "message"],
+      "properties": {
+        "timestamp": { "type": "string", "format": "date-time" },
+        "level": {
+          "type": "string",
+          "enum": ["info", "warn", "error", "debug"],
+          "tsType": "'info' | 'warn' | 'error' | 'debug'"
+        },
+        "message": { "type": "string" },
+        "rule": { "type": "string" },
+        "primitive": { "type": "string" },
+        "iteration": { "type": "integer", "minimum": 1 },
+        "data": { 
+          "type": "object",
+          "tsType": "Record<string, any>"
+        }
+      },
+      "tsType": "AuditEntry"
+    },
+    
+    "ExecutionResult": {
+      "type": "object",
+      "required": ["input", "output", "iterations", "audit"],
+      "properties": {
+        "input": { 
+          "type": "object",
+          "description": "Initial state object",
+          "tsType": "Record<string, any>"
+        },
+        "output": { 
+          "type": "object",
+          "description": "Final state object",
+          "tsType": "Record<string, any>"
+        },
+        "iterations": { "type": "integer", "minimum": 1 },
+        "durationMs": { "type": "integer", "minimum": 0 },
+        "convergence": {
+          "type": "object",
+          "properties": {
+            "achieved": { "type": "boolean" },
+            "threshold": { "type": "number" },
+            "finalDelta": { "type": "number" }
+          }
+        },
+        "audit": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/AuditEntry" },
+          "tsType": "AuditEntry[]"
+        },
+        "conflicts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ConflictRecord" },
+          "tsType": "ConflictRecord[]"
+        },
+        "rulesApplied": {
+          "type": "array",
+          "items": { "type": "string" },
+          "tsType": "string[]"
+        },
+        "primitiveStats": {
+          "type": "object",
+          "properties": {
+            "EXPRESSION_EVALUATOR": { "type": "integer", "minimum": 0 },
+            "CONTEXT_SANITIZER": { "type": "integer", "minimum": 0 },
+            "CONDITION_EVALUATOR": { "type": "integer", "minimum": 0 },
+            "TEMPLATE_RESOLVER": { "type": "integer", "minimum": 0 },
+            "STATE_MUTATOR": { "type": "integer", "minimum": 0 },
+            "OBJECT_FLATTENER": { "type": "integer", "minimum": 0 },
+            "RULE_APPLICATOR": { "type": "integer", "minimum": 0 },
+            "ITERATION_MANAGER": { "type": "integer", "minimum": 0 }
+          },
+          "tsType": "Record<string, number>"
+        },
+        "outcome": {
+          "type": "string",
+          "enum": ["success", "error", "timeout", "invariant_violation", "max_iterations"],
+          "tsType": "'success' | 'error' | 'timeout' | 'invariant_violation' | 'max_iterations'"
+        }
+      },
+      "tsType": "ExecutionResult"
+    }
+  },
+  
+  "properties": {
+    "ruleSet": {
+      "type": "object",
+      "required": ["id", "version", "rules"],
+      "properties": {
+        "id": { 
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$"
+        },
+        "version": { 
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+(\\.\\d+)?$"
+        },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "domain": { "type": "string" },
+        "author": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "lastModified": { "type": "string", "format": "date-time" },
+        "rules": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Rule" },
+          "tsType": "Rule[]"
+        },
+        "categories": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Available rule categories",
+          "tsType": "string[]"
+        },
+        "maxIterations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "default": 50
+        }
+      },
+      "tsType": "RuleSet"
+    },
+    
+    "stateSchema": {
+      "allOf": [{ "$ref": "#/$defs/StateSchema" }],
+      "description": "Optional schema definition for validating input/output state"
+    },
+    
+    "contracts": {
+      "type": "object",
+      "description": "Execution contracts defining rule behavior and validation",
+      "properties": {
+        "executionMode": {
+          "type": "string",
+          "enum": ["sequential", "priority_ordered", "dependency_resolved"],
+          "default": "priority_ordered",
+          "tsType": "'sequential' | 'priority_ordered' | 'dependency_resolved'"
+        },
+        "conflictResolution": {
+          "type": "string",
+          "enum": ["priority_override", "first_wins", "last_wins", "error", "collect"],
+          "default": "priority_override",
+          "tsType": "'priority_override' | 'first_wins' | 'last_wins' | 'error' | 'collect'"
+        },
+        "invariantChecking": {
+          "type": "string",
+          "enum": ["none", "per_rule", "per_iteration", "final_only"],
+          "default": "per_iteration",
+          "tsType": "'none' | 'per_rule' | 'per_iteration' | 'final_only'"
+        },
+        "auditLevel": {
+          "type": "string",
+          "enum": ["none", "minimal", "detailed", "verbose"],
+          "default": "detailed",
+          "tsType": "'none' | 'minimal' | 'detailed' | 'verbose'"
+        },
+        "deterministic": { 
+          "type": "boolean", 
+          "default": true,
+          "description": "Whether execution must be deterministic and repeatable"
+        }
+      }
+    },
+    
+    "executionResult": { "$ref": "#/$defs/ExecutionResult" }
+  },
+  
+  "required": ["ruleSet"],
+  "additionalProperties": false
+}

@@ -1,0 +1,76 @@
+{
+  "compilerOptions": {
+    /* -------------------------------------------------------------
+     * 🚀 TARGET ENVIRONMENT
+     * ----------------------------------------------------------- */
+    "target": "ES2022",                     
+    "module": "Node16",                    
+    "lib": ["ES2022", "DOM"],               
+    "moduleResolution": "node16",           
+    "allowSyntheticDefaultImports": true,    
+    "esModuleInterop": true,                 
+    "resolveJsonModule": true,              
+    "types": ["node"],                       
+
+    /* -------------------------------------------------------------
+     * 🧩 PROJECT STRUCTURE
+     * ----------------------------------------------------------- */
+    "rootDir": "./",
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@schemas/*": ["kern_schemas/*"]
+    },
+
+    /* -------------------------------------------------------------
+     * 🧠 TYPE & CODE QUALITY
+     * ----------------------------------------------------------- */
+    "strict": true,                         
+    "noImplicitAny": false,                 
+    "strictNullChecks": true,               
+    "noImplicitThis": true,                 
+    "alwaysStrict": true,                   
+    "forceConsistentCasingInFileNames": true,
+
+    /* -------------------------------------------------------------
+     * 🛡️ SECURITY / SANDBOX OPTIONS
+     * ----------------------------------------------------------- */
+    "isolatedModules": false,
+    "skipLibCheck": true,                   
+    "noEmitOnError": true,                  
+
+    /* -------------------------------------------------------------
+     * ⚙️ OUTPUT BEHAVIOR
+     * ----------------------------------------------------------- */
+    "sourceMap": true,
+    "removeComments": false,
+    "declaration": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./.tsbuildinfo",
+
+    /* -------------------------------------------------------------
+     * 📦 NODE RUNTIME INTEGRATION
+     * ----------------------------------------------------------- */
+    "moduleDetection": "force",
+    "allowImportingTsExtensions": true
+  },
+
+  "include": [
+    "kern_runtime.ts",
+    "kern_schemas/**/*.json",
+    "**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts"
+  ],
+
+  "ts-node": {
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "Node16"
+    }
+  }
+}
+

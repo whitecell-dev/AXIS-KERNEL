@@ -1,0 +1,331 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.calyx.ai/kern/v3/testvector.json",
+  "title": "KERN v3 / Test Vector Schema",
+  "description": "Domain-agnostic schema for reproducible regression tests and validation scenarios",
+  "engineVersion": "3.0.0",
+  "type": "object",
+  
+  "$defs": {
+    "TestScenario": {
+      "type": "object",
+      "required": ["id", "name", "input", "expectedOutput"],
+      "properties": {
+        "id": { 
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$"
+        },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "tsType": "string[]"
+        },
+        "input": { 
+          "type": "object",
+          "description": "Initial state for the test scenario",
+          "tsType": "Record<string, any>"
+        },
+        "expectedOutput": { 
+          "type": "object",
+          "description": "Expected final state after rule execution",
+          "tsType": "Record<string, any>"
+        },
+        "expectedViolations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "numerical_sanity",
+              "bounds_validation",
+              "monotonic_rules",
+              "state_progress",
+              "consistency_check",
+              "flow_coherence",
+              "dependency_integrity",
+              "audit_continuity",
+              "error_visibility"
+            ]
+          },
+          "tsType": "string[]"
+        },
+        "expectedConflicts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": { "type": "string" },
+              "rules": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          },
+          "tsType": "Array<{ field: string; rules: string[] }>"
+        },
+        "expectedIterations": {
+          "type": "object",
+          "properties": {
+            "min": { "type": "integer", "minimum": 1 },
+            "max": { "type": "integer", "minimum": 1 },
+            "exact": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "tolerance": {
+          "type": "object",
+          "description": "Numeric tolerance thresholds for regression comparisons",
+          "properties": {
+            "numericDelta": { "type": "number", "minimum": 0, "default": 1e-10 },
+            "percentDelta": { "type": "number", "minimum": 0, "maximum": 100, "default": 0.001 },
+            "ignoreFields": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Fields to ignore during comparison",
+              "tsType": "string[]"
+            },
+            "compareMode": {
+              "type": "string",
+              "enum": ["strict", "relaxed", "semantic"],
+              "default": "strict",
+              "tsType": "'strict' | 'relaxed' | 'semantic'"
+            }
+          }
+        },
+        "setup": {
+          "type": "object",
+          "description": "Test setup configuration",
+          "properties": {
+            "ruleSet": { "type": "string" },
+            "primitives": {
+              "type": "object",
+              "additionalProperties": true,
+              "tsType": "Record<string, any>"
+            },
+            "execution": {
+              "type": "object",
+              "additionalProperties": true,
+              "tsType": "Record<string, any>"
+            }
+          }
+        },
+        "assertions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["type", "expression"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["equals", "not_equals", "greater_than", "less_than", "contains", "matches", "custom"],
+                "tsType": "'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains' | 'matches' | 'custom'"
+              },
+              "expression": { "type": "string" },
+              "expected": {},
+              "description": { "type": "string" }
+            }
+          },
+          "tsType": "Array<{ type: string; expression: string; expected?: any; description?: string }>"
+        },
+        "enabled": { "type": "boolean", "default": true },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "createdBy": { "type": "string" },
+            "createdAt": { "type": "string", "format": "date-time" },
+            "lastModified": { "type": "string", "format": "date-time" },
+            "engineVersion": { "type": "string" },
+            "ruleSetVersion": { "type": "string" },
+            "expectedDurationMs": { "type": "integer", "minimum": 0 },
+            "complexity": {
+              "type": "string",
+              "enum": ["simple", "moderate", "complex", "stress"],
+              "tsType": "'simple' | 'moderate' | 'complex' | 'stress'"
+            }
+          }
+        }
+      },
+      "tsType": "TestScenario"
+    },
+    
+    "TestResult": {
+      "type": "object",
+      "required": ["scenarioId", "status", "timestamp", "durationMs"],
+      "properties": {
+        "scenarioId": { "type": "string" },
+        "status": {
+          "type": "string",
+          "enum": ["pass", "fail", "error", "skip", "timeout"],
+          "tsType": "'pass' | 'fail' | 'error' | 'skip' | 'timeout'"
+        },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "durationMs": { "type": "integer", "minimum": 0 },
+        "actualOutput": {
+          "type": "object",
+          "tsType": "Record<string, any>"
+        },
+        "actualIterations": { "type": "integer", "minimum": 1 },
+        "actualViolations": {
+          "type": "array",
+          "items": { "type": "string" },
+          "tsType": "string[]"
+        },
+        "differences": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": { "type": "string" },
+              "expected": {},
+              "actual": {},
+              "delta": { "type": "number" },
+              "type": { "type": "string" }
+            }
+          },
+          "tsType": "Array<{ field: string; expected: any; actual: any; delta?: number; type: string }>"
+        },
+        "assertionResults": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "assertion": { "type": "string" },
+              "passed": { "type": "boolean" },
+              "message": { "type": "string" }
+            }
+          },
+          "tsType": "Array<{ assertion: string; passed: boolean; message?: string }>"
+        },
+        "errors": {
+          "type": "array",
+          "items": { "type": "string" },
+          "tsType": "string[]"
+        }
+      },
+      "tsType": "TestResult"
+    },
+    
+    "TestSuite": {
+      "type": "object",
+      "required": ["id", "name", "scenarios"],
+      "properties": {
+        "id": { 
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$"
+        },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "version": { "type": "string" },
+        "scenarios": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/TestScenario" },
+          "tsType": "TestScenario[]"
+        },
+        "globalSetup": {
+          "type": "object",
+          "description": "Global configuration applied to all scenarios",
+          "additionalProperties": true,
+          "tsType": "Record<string, any>"
+        },
+        "globalTolerance": { 
+          "$ref": "#/$defs/TestScenario/properties/tolerance"
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "domain": { "type": "string" },
+            "author": { "type": "string" },
+            "createdAt": { "type": "string", "format": "date-time" },
+            "ruleSetId": { "type": "string" },
+            "ruleSetVersion": { "type": "string" }
+          }
+        }
+      },
+      "tsType": "TestSuite"
+    }
+  },
+  
+  "properties": {
+    "testSuite": { "$ref": "#/$defs/TestSuite" },
+    
+    "scenario": { "$ref": "#/$defs/TestScenario" },
+    
+    "results": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/TestResult" },
+      "tsType": "TestResult[]"
+    },
+    
+    "contracts": {
+      "type": "object",
+      "description": "Testing contracts and validation rules",
+      "properties": {
+        "regressionTesting": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "baseline": { "type": "string" },
+            "tolerance": { 
+              "$ref": "#/$defs/TestScenario/properties/tolerance"
+            }
+          }
+        },
+        "performanceTesting": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "maxDurationMs": { "type": "integer", "minimum": 1 },
+            "maxMemoryMB": { "type": "number", "minimum": 0 },
+            "maxIterations": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "invariantTesting": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "strictMode": { "type": "boolean", "default": true },
+            "violationHandling": {
+              "type": "string",
+              "enum": ["fail", "warn", "ignore"],
+              "default": "fail",
+              "tsType": "'fail' | 'warn' | 'ignore'"
+            }
+          }
+        },
+        "deterministicTesting": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "repeatCount": { "type": "integer", "minimum": 1, "default": 3 },
+            "seedValue": { "type": "integer" }
+          }
+        }
+      }
+    },
+    
+    "execution": {
+      "type": "object",
+      "description": "Test execution configuration",
+      "properties": {
+        "parallel": { "type": "boolean", "default": false },
+        "maxWorkers": { "type": "integer", "minimum": 1, "default": 1 },
+        "timeout": { "type": "integer", "minimum": 1000, "default": 30000 },
+        "retryPolicy": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "maxRetries": { "type": "integer", "minimum": 1, "default": 3 },
+            "backoffMs": { "type": "integer", "minimum": 100, "default": 1000 }
+          }
+        }
+      }
+    }
+  },
+  
+  "oneOf": [
+    { "required": ["testSuite"] },
+    { "required": ["scenario"] }
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,284 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.calyx.ai/kern/v3/metrics.json",
+  "title": "KERN v3 / Metrics Schema",
+  "description": "Domain-agnostic schema for capturing quantitative performance and reasoning metrics",
+  "engineVersion": "3.0.0",
+  "type": "object",
+  
+  "$defs": {
+    "TimingMetrics": {
+      "type": "object",
+      "properties": {
+        "durationMs": { "type": "integer", "minimum": 0 },
+        "setupMs": { "type": "integer", "minimum": 0 },
+        "executionMs": { "type": "integer", "minimum": 0 },
+        "teardownMs": { "type": "integer", "minimum": 0 },
+        "overhead": { "type": "number", "minimum": 0 }
+      },
+      "tsType": "TimingMetrics"
+    },
+    
+    "ResourceMetrics": {
+      "type": "object",
+      "properties": {
+        "cpuMs": { "type": "number", "minimum": 0 },
+        "memoryMB": { "type": "number", "minimum": 0 },
+        "peakMemoryMB": { "type": "number", "minimum": 0 },
+        "ioOps": { "type": "integer", "minimum": 0 },
+        "networkCalls": { "type": "integer", "minimum": 0 },
+        "diskReads": { "type": "integer", "minimum": 0 },
+        "diskWrites": { "type": "integer", "minimum": 0 }
+      },
+      "tsType": "ResourceMetrics"
+    },
+    
+    "PrimitiveStats": {
+      "type": "object",
+      "properties": {
+        "EXPRESSION_EVALUATOR": { "type": "integer", "minimum": 0 },
+        "CONTEXT_SANITIZER": { "type": "integer", "minimum": 0 },
+        "CONDITION_EVALUATOR": { "type": "integer", "minimum": 0 },
+        "TEMPLATE_RESOLVER": { "type": "integer", "minimum": 0 },
+        "STATE_MUTATOR": { "type": "integer", "minimum": 0 },
+        "OBJECT_FLATTENER": { "type": "integer", "minimum": 0 },
+        "RULE_APPLICATOR": { "type": "integer", "minimum": 0 },
+        "ITERATION_MANAGER": { "type": "integer", "minimum": 0 }
+      },
+      "tsType": "Record<string, number>"
+    },
+    
+    "InvariantStats": {
+      "type": "object",
+      "properties": {
+        "violations": { "type": "integer", "minimum": 0 },
+        "warnings": { "type": "integer", "minimum": 0 },
+        "checksPassed": { "type": "integer", "minimum": 0 },
+        "checksSkipped": { "type": "integer", "minimum": 0 },
+        "violationsByType": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 },
+          "tsType": "Record<string, number>"
+        }
+      },
+      "tsType": "InvariantStats"
+    },
+    
+    "ConvergenceMetrics": {
+      "type": "object",
+      "properties": {
+        "achieved": { "type": "boolean" },
+        "iterations": { "type": "integer", "minimum": 0 },
+        "finalDelta": { "type": "number", "minimum": 0 },
+        "threshold": { "type": "number", "minimum": 0 },
+        "iterationDeltas": {
+          "type": "array",
+          "items": { "type": "number" },
+          "tsType": "number[]"
+        },
+        "stagnationCount": { "type": "integer", "minimum": 0 }
+      },
+      "tsType": "ConvergenceMetrics"
+    },
+    
+    "RuleMetrics": {
+      "type": "object",
+      "properties": {
+        "totalRules": { "type": "integer", "minimum": 0 },
+        "rulesApplied": { "type": "integer", "minimum": 0 },
+        "rulesSkipped": { "type": "integer", "minimum": 0 },
+        "rulesFailed": { "type": "integer", "minimum": 0 },
+        "conflictsDetected": { "type": "integer", "minimum": 0 },
+        "averageRuleEvalTime": { "type": "number", "minimum": 0 },
+        "ruleFrequency": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 },
+          "tsType": "Record<string, number>"
+        },
+        "categoryStats": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "applied": { "type": "integer", "minimum": 0 },
+              "skipped": { "type": "integer", "minimum": 0 },
+              "failed": { "type": "integer", "minimum": 0 }
+            }
+          },
+          "tsType": "Record<string, { applied: number; skipped: number; failed: number }>"
+        }
+      },
+      "tsType": "RuleMetrics"
+    },
+    
+    "MetricsSnapshot": {
+      "type": "object",
+      "required": ["runId", "timestamp"],
+      "properties": {
+        "runId": { 
+          "type": "string", 
+          "pattern": "^[a-zA-Z0-9_-]+$" 
+        },
+        "sessionId": { "type": "string" },
+        "engineVersion": { "type": "string" },
+        "ruleSetId": { "type": "string" },
+        "ruleSetVersion": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "timing": { "$ref": "#/$defs/TimingMetrics" },
+        "resources": { "$ref": "#/$defs/ResourceMetrics" },
+        "primitives": { "$ref": "#/$defs/PrimitiveStats" },
+        "invariants": { "$ref": "#/$defs/InvariantStats" },
+        "convergence": { "$ref": "#/$defs/ConvergenceMetrics" },
+        "rules": { "$ref": "#/$defs/RuleMetrics" },
+        "outcome": {
+          "type": "string",
+          "enum": ["success", "violation_detected", "timeout", "error", "max_iterations", "cancelled"],
+          "tsType": "'success' | 'violation_detected' | 'timeout' | 'error' | 'max_iterations' | 'cancelled'"
+        },
+        "notes": { "type": "string" },
+        "context": {
+          "type": "object",
+          "description": "Additional contextual metadata",
+          "additionalProperties": true,
+          "tsType": "Record<string, any>"
+        }
+      },
+      "tsType": "MetricsSnapshot"
+    },
+    
+    "AggregatedMetrics": {
+      "type": "object",
+      "properties": {
+        "period": {
+          "type": "object",
+          "properties": {
+            "start": { "type": "string", "format": "date-time" },
+            "end": { "type": "string", "format": "date-time" },
+            "duration": { "type": "string" }
+          }
+        },
+        "summary": {
+          "type": "object",
+          "properties": {
+            "totalRuns": { "type": "integer", "minimum": 0 },
+            "successfulRuns": { "type": "integer", "minimum": 0 },
+            "failedRuns": { "type": "integer", "minimum": 0 },
+            "averageDuration": { "type": "number", "minimum": 0 },
+            "medianDuration": { "type": "number", "minimum": 0 },
+            "p95Duration": { "type": "number", "minimum": 0 },
+            "p99Duration": { "type": "number", "minimum": 0 }
+          }
+        },
+        "trends": {
+          "type": "object",
+          "properties": {
+            "performanceTrend": { 
+              "type": "string",
+              "enum": ["improving", "degrading", "stable", "unknown"],
+              "tsType": "'improving' | 'degrading' | 'stable' | 'unknown'"
+            },
+            "errorRate": { "type": "number", "minimum": 0, "maximum": 1 },
+            "throughput": { "type": "number", "minimum": 0 }
+          }
+        },
+        "snapshots": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/MetricsSnapshot" },
+          "tsType": "MetricsSnapshot[]"
+        }
+      },
+      "tsType": "AggregatedMetrics"
+    }
+  },
+  
+  "properties": {
+    "snapshot": { "$ref": "#/$defs/MetricsSnapshot" },
+    
+    "aggregated": { "$ref": "#/$defs/AggregatedMetrics" },
+    
+    "contracts": {
+      "type": "object",
+      "description": "Metrics collection contracts and configuration",
+      "properties": {
+        "collection": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "level": {
+              "type": "string",
+              "enum": ["minimal", "standard", "detailed", "verbose"],
+              "default": "standard",
+              "tsType": "'minimal' | 'standard' | 'detailed' | 'verbose'"
+            },
+            "samplingRate": { "type": "number", "minimum": 0, "maximum": 1, "default": 1.0 },
+            "bufferSize": { "type": "integer", "minimum": 1, "default": 1000 }
+          }
+        },
+        "aggregation": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "windowSize": { "type": "string", "default": "1h" },
+            "retention": { "type": "string", "default": "7d" },
+            "groupBy": {
+              "type": "array",
+              "items": { "type": "string" },
+              "default": ["ruleSetId", "outcome"],
+              "tsType": "string[]"
+            }
+          }
+        },
+        "alerting": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "thresholds": {
+              "type": "object",
+              "properties": {
+                "maxDurationMs": { "type": "integer", "minimum": 1 },
+                "maxMemoryMB": { "type": "number", "minimum": 0 },
+                "maxErrorRate": { "type": "number", "minimum": 0, "maximum": 1 },
+                "maxViolations": { "type": "integer", "minimum": 0 }
+              }
+            }
+          }
+        },
+        "export": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "format": {
+              "type": "string",
+              "enum": ["json", "csv", "prometheus", "influxdb"],
+              "default": "json",
+              "tsType": "'json' | 'csv' | 'prometheus' | 'influxdb'"
+            },
+            "endpoint": { "type": "string" },
+            "batchSize": { "type": "integer", "minimum": 1, "default": 100 }
+          }
+        }
+      }
+    },
+    
+    "configuration": {
+      "type": "object",
+      "description": "Metrics system configuration",
+      "properties": {
+        "enableTimingMetrics": { "type": "boolean", "default": true },
+        "enableResourceMetrics": { "type": "boolean", "default": true },
+        "enablePrimitiveStats": { "type": "boolean", "default": true },
+        "enableInvariantStats": { "type": "boolean", "default": true },
+        "enableConvergenceMetrics": { "type": "boolean", "default": true },
+        "enableRuleMetrics": { "type": "boolean", "default": true },
+        "precision": { "type": "integer", "minimum": 1, "maximum": 15, "default": 6 },
+        "timeZone": { "type": "string", "default": "UTC" }
+      }
+    }
+  },
+  
+  "oneOf": [
+    { "required": ["snapshot"] },
+    { "required": ["aggregated"] }
+  ],
+  "additionalProperties": false
+}

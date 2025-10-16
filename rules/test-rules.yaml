@@ -1,0 +1,22 @@
+# test-rules.yaml - Simple test file
+metadata:
+  name: "simple_test"
+  version: "1.0.0"
+  description: "Simple test rules"
+  domain: "testing"
+
+rules:
+  - name: "set_status"
+    priority: 100
+    when: "true"
+    then:
+      status: "processed"
+      processed_at: "{{ new Date().toISOString() }}"
+  
+  - name: "calculate_score"
+    priority: 200  
+    when: "score1 && score2"
+    then:
+      total_score: "{{ score1 + score2 }}"
+      
+

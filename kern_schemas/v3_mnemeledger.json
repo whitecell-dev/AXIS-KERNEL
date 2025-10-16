@@ -1,0 +1,354 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.calyx.ai/kern/v3/mnemeledger.json",
+  "title": "KERN v3 / MNEME Ledger Schema",
+  "description": "Domain-agnostic schema for verifiable, append-only state transitions and audit trails",
+  "engineVersion": "3.0.0",
+  "type": "object",
+  
+  "$defs": {
+    "LedgerEntry": {
+      "type": "object",
+      "required": ["id", "timestamp", "hash", "prevHash", "operation", "payload"],
+      "properties": {
+        "id": { 
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "sequenceNumber": { 
+          "type": "integer", 
+          "minimum": 0 
+        },
+        "timestamp": { 
+          "type": "string", 
+          "format": "date-time" 
+        },
+        "hash": { 
+          "type": "string", 
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "SHA-256 hash of entry content"
+        },
+        "prevHash": { 
+          "type": "string", 
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "Hash of previous entry for chain integrity"
+        },
+        "operation": {
+          "type": "string",
+          "enum": ["SET", "UPDATE", "DELETE", "VALIDATION", "CONFLICT", "VIOLATION", "SNAPSHOT", "CHECKPOINT", "ROLLBACK"],
+          "tsType": "'SET' | 'UPDATE' | 'DELETE' | 'VALIDATION' | 'CONFLICT' | 'VIOLATION' | 'SNAPSHOT' | 'CHECKPOINT' | 'ROLLBACK'"
+        },
+        "payload": { 
+          "type": "object",
+          "description": "Operation-specific data",
+          "tsType": "Record<string, any>"
+        },
+        "signature": { 
+          "type": "string",
+          "description": "Digital signature for entry verification"
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "ruleId": { "type": "string" },
+            "primitive": { "type": "string" },
+            "iteration": { "type": "integer", "minimum": 1 },
+            "userId": { "type": "string" },
+            "sessionId": { "type": "string" },
+            "tags": {
+              "type": "array",
+              "items": { "type": "string" },
+              "tsType": "string[]"
+            }
+          },
+          "tsType": "Record<string, any>"
+        },
+        "size": { 
+          "type": "integer", 
+          "minimum": 0,
+          "description": "Entry size in bytes"
+        }
+      },
+      "tsType": "LedgerEntry"
+    },
+    
+    "ChainValidation": {
+      "type": "object",
+      "properties": {
+        "valid": { "type": "boolean" },
+        "lastValidIndex": { "type": "integer", "minimum": -1 },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "index": { "type": "integer" },
+              "type": { "type": "string" },
+              "message": { "type": "string" }
+            }
+          },
+          "tsType": "Array<{ index: number; type: string; message: string }>"
+        },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "tsType": "ChainValidation"
+    },
+    
+    "LedgerConfig": {
+      "type": "object",
+      "properties": {
+        "verifyChain": { 
+          "type": "boolean", 
+          "default": true,
+          "description": "Whether to verify chain integrity on operations"
+        },
+        "signatureAlgorithm": {
+          "type": "string",
+          "enum": ["ed25519", "rsa", "ecdsa", "none"],
+          "default": "ed25519",
+          "tsType": "'ed25519' | 'rsa' | 'ecdsa' | 'none'"
+        },
+        "hashAlgorithm": {
+          "type": "string",
+          "enum": ["sha256", "sha3-256", "blake2b"],
+          "default": "sha256",
+          "tsType": "'sha256' | 'sha3-256' | 'blake2b'"
+        },
+        "compression": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "algorithm": {
+              "type": "string",
+              "enum": ["gzip", "lz4", "zstd"],
+              "default": "gzip",
+              "tsType": "'gzip' | 'lz4' | 'zstd'"
+            },
+            "level": { "type": "integer", "minimum": 1, "maximum": 9, "default": 6 }
+          }
+        },
+        "retention": {
+          "type": "object",
+          "properties": {
+            "maxEntries": { "type": "integer", "minimum": 1 },
+            "maxAge": { "type": "string" },
+            "maxSize": { "type": "string" },
+            "archiveOld": { "type": "boolean", "default": false }
+          }
+        },
+        "immutable": { 
+          "type": "boolean", 
+          "default": true,
+          "description": "Whether entries can be modified after creation"
+        }
+      },
+      "tsType": "LedgerConfig"
+    },
+    
+    "LedgerStats": {
+      "type": "object",
+      "properties": {
+        "totalEntries": { "type": "integer", "minimum": 0 },
+        "totalSize": { "type": "integer", "minimum": 0 },
+        "earliestEntry": { "type": "string", "format": "date-time" },
+        "latestEntry": { "type": "string", "format": "date-time" },
+        "operationCounts": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 },
+          "tsType": "Record<string, number>"
+        },
+        "averageEntrySize": { "type": "number", "minimum": 0 },
+        "integrityStatus": {
+          "type": "string",
+          "enum": ["valid", "invalid", "unknown", "checking"],
+          "tsType": "'valid' | 'invalid' | 'unknown' | 'checking'"
+        }
+      },
+      "tsType": "LedgerStats"
+    }
+  },
+  
+  "properties": {
+    "ledger": {
+      "type": "object",
+      "required": ["id", "version", "entries"],
+      "properties": {
+        "id": { 
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$"
+        },
+        "version": { 
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+(\\.\\d+)?$"
+        },
+        "description": { "type": "string" },
+        "created": { "type": "string", "format": "date-time" },
+        "lastModified": { "type": "string", "format": "date-time" },
+        "entries": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/LedgerEntry" },
+          "tsType": "LedgerEntry[]"
+        },
+        "headHash": { 
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "Hash of the latest entry"
+        },
+        "genesisHash": { 
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "Hash of the first entry"
+        },
+        "config": { "$ref": "#/$defs/LedgerConfig" },
+        "stats": { "$ref": "#/$defs/LedgerStats" },
+        "validation": { "$ref": "#/$defs/ChainValidation" }
+      },
+      "tsType": "Ledger"
+    },
+    
+    "contracts": {
+      "type": "object",
+      "description": "Ledger contracts defining verification and audit requirements",
+      "properties": {
+        "integrity": {
+          "type": "object",
+          "properties": {
+            "requireSignatures": { "type": "boolean", "default": true },
+            "requireChainIntegrity": { "type": "boolean", "default": true },
+            "requireTimestampOrdering": { "type": "boolean", "default": true },
+            "allowDuplicates": { "type": "boolean", "default": false }
+          }
+        },
+        "auditability": {
+          "type": "object",
+          "properties": {
+            "requireOperationLog": { "type": "boolean", "default": true },
+            "requireStateSnapshots": { "type": "boolean", "default": false },
+            "requireRollbackCapability": { "type": "boolean", "default": false },
+            "maxAuditGap": { "type": "integer", "minimum": 0, "default": 0 }
+          }
+        },
+        "compliance": {
+          "type": "object",
+          "properties": {
+            "gdprCompliant": { "type": "boolean", "default": false },
+            "hipaaCompliant": { "type": "boolean", "default": false },
+            "soxCompliant": { "type": "boolean", "default": false },
+            "customRequirements": {
+              "type": "array",
+              "items": { "type": "string" },
+              "tsType": "string[]"
+            }
+          }
+        }
+      }
+    },
+    
+    "operations": {
+      "type": "object",
+      "description": "Supported ledger operations and their configurations",
+      "properties": {
+        "append": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "batchSize": { "type": "integer", "minimum": 1, "default": 1 },
+            "asyncMode": { "type": "boolean", "default": false },
+            "validation": {
+              "type": "string",
+              "enum": ["none", "basic", "strict"],
+              "default": "strict",
+              "tsType": "'none' | 'basic' | 'strict'"
+            }
+          }
+        },
+        "query": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "indexing": { "type": "boolean", "default": true },
+            "maxResults": { "type": "integer", "minimum": 1, "default": 1000 },
+            "supportedFilters": {
+              "type": "array",
+              "items": { "type": "string" },
+              "default": ["timestamp", "operation", "ruleId", "userId"],
+              "tsType": "string[]"
+            }
+          }
+        },
+        "verification": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "mode": {
+              "type": "string",
+              "enum": ["lazy", "eager", "periodic"],
+              "default": "lazy",
+              "tsType": "'lazy' | 'eager' | 'periodic'"
+            },
+            "interval": { "type": "integer", "minimum": 1000, "default": 300000 },
+            "parallelVerification": { "type": "boolean", "default": false }
+          }
+        },
+        "export": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "formats": {
+              "type": "array",
+              "items": { 
+                "type": "string",
+                "enum": ["json", "csv", "xml", "binary"]
+              },
+              "default": ["json"],
+              "tsType": "Array<'json' | 'csv' | 'xml' | 'binary'>"
+            },
+            "includeSignatures": { "type": "boolean", "default": true },
+            "compress": { "type": "boolean", "default": false }
+          }
+        }
+      }
+    },
+    
+    "synchronization": {
+      "type": "object",
+      "description": "Multi-ledger synchronization and replication settings",
+      "properties": {
+        "replication": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "peers": {
+              "type": "array",
+              "items": { "type": "string" },
+              "tsType": "string[]"
+            },
+            "mode": {
+              "type": "string",
+              "enum": ["master_slave", "multi_master", "eventual_consistency"],
+              "default": "master_slave",
+              "tsType": "'master_slave' | 'multi_master' | 'eventual_consistency'"
+            },
+            "syncInterval": { "type": "integer", "minimum": 1000, "default": 60000 }
+          }
+        },
+        "conflicts": {
+          "type": "object",
+          "properties": {
+            "resolution": {
+              "type": "string",
+              "enum": ["timestamp", "priority", "manual", "merge"],
+              "default": "timestamp",
+              "tsType": "'timestamp' | 'priority' | 'manual' | 'merge'"
+            },
+            "detection": { "type": "boolean", "default": true },
+            "reporting": { "type": "boolean", "default": true }
+          }
+        }
+      }
+    }
+  },
+  
+  "required": ["ledger"],
+  "additionalProperties": false
+}

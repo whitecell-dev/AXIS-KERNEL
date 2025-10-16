@@ -1,0 +1,398 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.calyx.ai/kern/v3/systemmanifest.json",
+  "title": "KERN v3 / System Manifest Schema",
+  "description": "Root schema for declaring a complete deterministic reasoning engine with all components",
+  "engineVersion": "3.0.0",
+  "type": "object",
+  
+  "$defs": {
+    "ComponentReference": {
+      "type": "object",
+      "properties": {
+        "path": { "type": "string" },
+        "version": { "type": "string" },
+        "checksum": { "type": "string" },
+        "required": { "type": "boolean", "default": true },
+        "description": { "type": "string" }
+      },
+      "required": ["path"],
+      "tsType": "ComponentReference"
+    },
+    
+    "SystemMetadata": {
+      "type": "object",
+      "properties": {
+        "id": { 
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$"
+        },
+        "version": { 
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+(\\.\\d+)?$"
+        },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "domain": { "type": "string" },
+        "author": { "type": "string" },
+        "organization": { "type": "string" },
+        "license": { "type": "string" },
+        "homepage": { "type": "string", "format": "uri" },
+        "repository": { "type": "string", "format": "uri" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "lastModified": { "type": "string", "format": "date-time" },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "tsType": "string[]"
+        }
+      },
+      "required": ["id", "version", "name"],
+      "tsType": "SystemMetadata"
+    },
+    
+    "ExecutionContract": {
+      "type": "object",
+      "description": "Defines how components interact during execution",
+      "properties": {
+        "primitiveSequence": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Order of primitive execution per tick",
+          "tsType": "string[]"
+        },
+        "invariantChecks": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "description": "Maps primitives to their required invariant checks",
+          "tsType": "Record<string, string[]>"
+        },
+        "metricsCapture": {
+          "type": "object",
+          "properties": {
+            "primitiveLevel": { "type": "boolean", "default": true },
+            "ruleLevel": { "type": "boolean", "default": true },
+            "iterationLevel": { "type": "boolean", "default": true },
+            "sessionLevel": { "type": "boolean", "default": false }
+          }
+        },
+        "auditTrail": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "granularity": {
+              "type": "string",
+              "enum": ["minimal", "standard", "detailed", "verbose"],
+              "default": "standard",
+              "tsType": "'minimal' | 'standard' | 'detailed' | 'verbose'"
+            },
+            "retention": { "type": "string", "default": "30d" }
+          }
+        }
+      },
+      "tsType": "ExecutionContract"
+    },
+    
+    "ValidationContract": {
+      "type": "object",
+      "description": "Defines validation and consistency requirements",
+      "properties": {
+        "schemaValidation": { "type": "boolean", "default": true },
+        "crossComponentValidation": { "type": "boolean", "default": true },
+        "runtimeValidation": { "type": "boolean", "default": true },
+        "strictMode": { "type": "boolean", "default": true },
+        "compatibilityChecks": {
+          "type": "object",
+          "properties": {
+            "engineVersion": { "type": "boolean", "default": true },
+            "componentVersions": { "type": "boolean", "default": true },
+            "apiCompatibility": { "type": "boolean", "default": true }
+          }
+        }
+      },
+      "tsType": "ValidationContract"
+    },
+    
+    "SecurityContract": {
+      "type": "object",
+      "description": "Security requirements and constraints",
+      "properties": {
+        "isolationLevel": {
+          "type": "string",
+          "enum": ["none", "basic", "strict", "hermetic"],
+          "default": "strict",
+          "tsType": "'none' | 'basic' | 'strict' | 'hermetic'"
+        },
+        "cryptographicRequirements": {
+          "type": "object",
+          "properties": {
+            "signatureVerification": { "type": "boolean", "default": true },
+            "encryptionAtRest": { "type": "boolean", "default": false },
+            "encryptionInTransit": { "type": "boolean", "default": false },
+            "keyRotation": { "type": "boolean", "default": false }
+          }
+        },
+        "accessControl": {
+          "type": "object",
+          "properties": {
+            "authentication": { "type": "boolean", "default": false },
+            "authorization": { "type": "boolean", "default": false },
+            "auditAccess": { "type": "boolean", "default": true }
+          }
+        }
+      },
+      "tsType": "SecurityContract"
+    },
+    
+    "DeploymentProfile": {
+      "type": "object",
+      "description": "Deployment-specific configuration",
+      "properties": {
+        "name": { "type": "string" },
+        "environment": {
+          "type": "string",
+          "enum": ["development", "testing", "staging", "production"],
+          "tsType": "'development' | 'testing' | 'staging' | 'production'"
+        },
+        "scalability": {
+          "type": "object",
+          "properties": {
+            "maxConcurrentSessions": { "type": "integer", "minimum": 1 },
+            "maxThroughput": { "type": "number", "minimum": 0 },
+            "autoScaling": { "type": "boolean", "default": false }
+          }
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "cpuLimit": { "type": "string" },
+            "memoryLimit": { "type": "string" },
+            "storageLimit": { "type": "string" },
+            "networkLimit": { "type": "string" }
+          }
+        },
+        "monitoring": {
+          "type": "object",
+          "properties": {
+            "healthChecks": { "type": "boolean", "default": true },
+            "metrics": { "type": "boolean", "default": true },
+            "alerts": { "type": "boolean", "default": false },
+            "tracing": { "type": "boolean", "default": false }
+          }
+        }
+      },
+      "required": ["name", "environment"],
+      "tsType": "DeploymentProfile"
+    }
+  },
+  
+  "properties": {
+    "manifest": {
+      "type": "object",
+      "required": ["metadata", "components", "contracts"],
+      "properties": {
+        "metadata": { "$ref": "#/$defs/SystemMetadata" },
+        
+        "components": {
+          "type": "object",
+          "required": ["primitives", "rules", "invariants", "execution"],
+          "properties": {
+            "primitives": { 
+              "$ref": "#/$defs/ComponentReference",
+              "default": { "path": "./v3_primitives.json" }
+            },
+            "rules": { 
+              "$ref": "#/$defs/ComponentReference",
+              "default": { "path": "./v3_rulesconfig.json" }
+            },
+            "invariants": { 
+              "$ref": "#/$defs/ComponentReference",
+              "default": { "path": "./v3_invariant.json" }
+            },
+            "execution": { 
+              "$ref": "#/$defs/ComponentReference",
+              "default": { "path": "./v3_kernexecution.json" }
+            },
+            "metrics": { 
+              "$ref": "#/$defs/ComponentReference",
+              "default": { "path": "./v3_metrics.json" }
+            },
+            "ledger": { 
+              "$ref": "#/$defs/ComponentReference",
+              "default": { "path": "./v3_mnemeledger.json" }
+            },
+            "testVectors": { 
+              "$ref": "#/$defs/ComponentReference",
+              "default": { "path": "./v3_testvector.json" }
+            }
+          },
+          "tsType": "Record<string, ComponentReference>"
+        },
+        
+        "contracts": {
+          "type": "object",
+          "description": "System-wide contracts defining component interactions and guarantees",
+          "properties": {
+            "execution": { "$ref": "#/$defs/ExecutionContract" },
+            "validation": { "$ref": "#/$defs/ValidationContract" },
+            "security": { "$ref": "#/$defs/SecurityContract" },
+            "compatibility": {
+              "type": "object",
+              "properties": {
+                "minimumEngineVersion": { "type": "string", "default": "3.0.0" },
+                "maximumEngineVersion": { "type": "string" },
+                "supportedPlatforms": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "default": ["node", "browser", "deno"],
+                  "tsType": "string[]"
+                },
+                "dependencies": {
+                  "type": "object",
+                  "additionalProperties": { "type": "string" },
+                  "tsType": "Record<string, string>"
+                }
+              }
+            },
+            "sla": {
+              "type": "object",
+              "properties": {
+                "deterministic": { "type": "boolean", "default": true },
+                "reproducible": { "type": "boolean", "default": true },
+                "auditable": { "type": "boolean", "default": true },
+                "maxExecutionTime": { "type": "integer", "minimum": 1 },
+                "maxMemoryUsage": { "type": "integer", "minimum": 1 },
+                "guaranteedThroughput": { "type": "number", "minimum": 0 }
+              }
+            }
+          },
+          "tsType": "SystemContracts"
+        },
+        
+        "deployment": {
+          "type": "object",
+          "properties": {
+            "profiles": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/DeploymentProfile" },
+              "tsType": "DeploymentProfile[]"
+            },
+            "default": { "type": "string", "default": "development" },
+            "packaging": {
+              "type": "object",
+              "properties": {
+                "format": {
+                  "type": "string",
+                  "enum": ["npm", "esm", "cjs", "umd", "standalone"],
+                  "default": "esm",
+                  "tsType": "'npm' | 'esm' | 'cjs' | 'umd' | 'standalone'"
+                },
+                "bundled": { "type": "boolean", "default": false },
+                "minified": { "type": "boolean", "default": false },
+                "sourceMaps": { "type": "boolean", "default": true }
+              }
+            }
+          }
+        },
+        
+        "extensions": {
+          "type": "object",
+          "description": "Optional extensions and plugins",
+          "properties": {
+            "plugins": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "version": { "type": "string" },
+                  "path": { "type": "string" },
+                  "config": { "type": "object" }
+                },
+                "required": ["name", "path"]
+              },
+              "tsType": "Array<{ name: string; version?: string; path: string; config?: any }>"
+            },
+            "hooks": {
+              "type": "object",
+              "properties": {
+                "preExecution": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "tsType": "string[]"
+                },
+                "postExecution": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "tsType": "string[]"
+                },
+                "onError": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "tsType": "string[]"
+                }
+              }
+            }
+          }
+        },
+        
+        "documentation": {
+          "type": "object",
+          "properties": {
+            "readme": { "type": "string" },
+            "changelog": { "type": "string" },
+            "api": { "type": "string" },
+            "examples": { "type": "string" },
+            "tutorials": {
+              "type": "array",
+              "items": { "type": "string" },
+              "tsType": "string[]"
+            }
+          }
+        }
+      },
+      "tsType": "SystemManifest"
+    },
+    
+    "validation": {
+      "type": "object",
+      "description": "Manifest validation results",
+      "properties": {
+        "valid": { "type": "boolean" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "version": { "type": "string" },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "component": { "type": "string" },
+              "severity": { "type": "string" },
+              "message": { "type": "string" },
+              "path": { "type": "string" }
+            }
+          },
+          "tsType": "Array<{ component: string; severity: string; message: string; path?: string }>"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "component": { "type": "string" },
+              "message": { "type": "string" },
+              "recommendation": { "type": "string" }
+            }
+          },
+          "tsType": "Array<{ component: string; message: string; recommendation?: string }>"
+        }
+      }
+    }
+  },
+  
+  "required": ["manifest"],
+  "additionalProperties": false
+}

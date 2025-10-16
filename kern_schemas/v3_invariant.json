@@ -1,0 +1,208 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.calyx.ai/kern/v3/invariant.json",
+  "title": "KERN v3 / Invariant Validation Schema",
+  "description": "Domain-agnostic schema for system invariants and validation rules in deterministic logic engines",
+  "engineVersion": "3.0.0",
+  "type": "object",
+  
+  "$defs": {
+    "ValidationRule": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean", "default": true },
+        "severity": { 
+          "type": "string", 
+          "enum": ["error", "warn", "info"], 
+          "default": "error",
+          "tsType": "'error' | 'warn' | 'info'"
+        },
+        "tolerance": { "type": "number", "minimum": 0, "default": 0 }
+      }
+    },
+    
+    "NumericBounds": {
+      "type": "object",
+      "properties": {
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "inclusive": { "type": "boolean", "default": true }
+      },
+      "tsType": "{ min?: number; max?: number; inclusive?: boolean }"
+    },
+    
+    "InvariantViolation": {
+      "type": "object",
+      "required": ["invariant", "severity", "message", "timestamp"],
+      "properties": {
+        "invariant": {
+          "type": "string",
+          "enum": [
+            "numerical_sanity",
+            "bounds_validation", 
+            "monotonic_rules",
+            "state_progress",
+            "consistency_check",
+            "flow_coherence",
+            "dependency_integrity",
+            "audit_continuity",
+            "error_visibility"
+          ],
+          "tsType": "'numerical_sanity' | 'bounds_validation' | 'monotonic_rules' | 'state_progress' | 'consistency_check' | 'flow_coherence' | 'dependency_integrity' | 'audit_continuity' | 'error_visibility'"
+        },
+        "severity": { "$ref": "#/$defs/ValidationRule/properties/severity" },
+        "message": { "type": "string" },
+        "details": { 
+          "type": "object",
+          "tsType": "Record<string, any>"
+        },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "iteration": { "type": "integer", "minimum": 1 },
+        "primitive": { "type": "string" },
+        "ruleName": { "type": "string" }
+      },
+      "tsType": "InvariantViolation"
+    }
+  },
+  
+  "properties": {
+    "invariantValidator": {
+      "type": "object",
+      "description": "Core validation rules for engine state transitions",
+      "properties": {
+        "numericalSanity": {
+          "allOf": [{ "$ref": "#/$defs/ValidationRule" }],
+          "properties": {
+            "checkFinite": { "type": "boolean", "default": true },
+            "checkBounds": { "type": "boolean", "default": true },
+            "allowNaN": { "type": "boolean", "default": false },
+            "maxPrecision": { "type": "integer", "default": 15 }
+          }
+        },
+        
+        "boundsValidation": {
+          "allOf": [{ "$ref": "#/$defs/ValidationRule" }],
+          "properties": {
+            "globalBounds": { "$ref": "#/$defs/NumericBounds" },
+            "fieldBounds": {
+              "type": "object",
+              "additionalProperties": { "$ref": "#/$defs/NumericBounds" },
+              "tsType": "Record<string, NumericBounds>"
+            }
+          }
+        },
+        
+        "monotonicRules": {
+          "allOf": [{ "$ref": "#/$defs/ValidationRule" }],
+          "properties": {
+            "allowDuplicates": { "type": "boolean", "default": false },
+            "maxDuplicates": { "type": "integer", "default": 0 },
+            "strictOrdering": { "type": "boolean", "default": true }
+          }
+        },
+        
+        "stateProgress": {
+          "allOf": [{ "$ref": "#/$defs/ValidationRule" }],
+          "properties": {
+            "minChangesPerIteration": { "type": "integer", "default": 1 },
+            "stagnationThreshold": { "type": "integer", "default": 3 },
+            "requireProgress": { "type": "boolean", "default": true }
+          }
+        },
+        
+        "consistencyCheck": {
+          "allOf": [{ "$ref": "#/$defs/ValidationRule" }],
+          "properties": {
+            "crossFieldValidation": { "type": "boolean", "default": true },
+            "typeConsistency": { "type": "boolean", "default": true },
+            "schemaValidation": { "type": "boolean", "default": true }
+          }
+        },
+        
+        "flowCoherence": {
+          "allOf": [{ "$ref": "#/$defs/ValidationRule" }],
+          "properties": {
+            "tolerance": { "type": "number", "default": 1e-10 },
+            "validateCalculations": { "type": "boolean", "default": true },
+            "balanceCheck": { "type": "boolean", "default": true }
+          }
+        },
+        
+        "dependencyIntegrity": {
+          "allOf": [{ "$ref": "#/$defs/ValidationRule" }],
+          "properties": {
+            "dependencies": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "tsType": "Record<string, string[]>"
+            },
+            "circularDependencyCheck": { "type": "boolean", "default": true }
+          }
+        },
+        
+        "auditContinuity": {
+          "allOf": [{ "$ref": "#/$defs/ValidationRule" }],
+          "properties": {
+            "checkTimeline": { "type": "boolean", "default": true },
+            "maxTimeGapMs": { "type": "integer", "default": 5000 },
+            "requireChainIntegrity": { "type": "boolean", "default": true }
+          }
+        },
+        
+        "errorVisibility": {
+          "allOf": [{ "$ref": "#/$defs/ValidationRule" }],
+          "properties": {
+            "requireAuditEntries": { "type": "boolean", "default": true },
+            "minErrorLevel": { 
+              "type": "string", 
+              "enum": ["error", "warn", "info"], 
+              "default": "error" 
+            },
+            "suppressDuplicates": { "type": "boolean", "default": false }
+          }
+        }
+      },
+      "tsType": "InvariantValidator"
+    },
+    
+    "contracts": {
+      "type": "object",
+      "description": "Defines which primitives trigger which invariant checks",
+      "properties": {
+        "primitiveBindings": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "tsType": "Record<string, string[]>"
+        },
+        "checkSequence": {
+          "type": "array",
+          "items": { "type": "string" },
+          "tsType": "string[]"
+        },
+        "failureModes": {
+          "type": "object",
+          "properties": {
+            "haltOnError": { "type": "boolean", "default": true },
+            "collectAllViolations": { "type": "boolean", "default": false },
+            "maxViolations": { "type": "integer", "default": 10 }
+          }
+        }
+      }
+    },
+    
+    "violations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/InvariantViolation" },
+      "tsType": "InvariantViolation[]"
+    }
+  },
+  
+  "required": ["invariantValidator"],
+  "additionalProperties": false
+}

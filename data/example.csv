@@ -1,0 +1,6 @@
+name,credit_score,annual_income,monthly_debt,monthly_housing,first_time_buyer
+"Sarah Chen",785,125000,2500,3200,false
+"Mike Rodriguez",650,65000,1800,2100,true
+"Jennifer Park",720,95000,2200,2800,false
+"David Kim",580,45000,1500,1800,true
+"Lisa Thompson",750,80000,1900,2400,false

@@ -1,0 +1,35 @@
+metadata:
+  name: mortgage_approval
+  version: 1.0.0
+  description: Basic mortgage approval rules
+  domain: financial_services
+  author: system
+
+rules:
+  - name: check_credit_score
+    priority: 100
+    when: applicant.credit_score < 650
+    then:
+      applicant.approval_status: rejected
+      applicant.rejection_reason: "Low credit score"
+
+  - name: check_income
+    priority: 200
+    when: applicant.annual_income < 50000
+    then:
+      applicant.approval_status: rejected
+      applicant.rejection_reason: "Insufficient income"
+
+  - name: check_debt_ratio
+    priority: 300
+    when: applicant.debt_to_income_ratio > 0.4
+    then:
+      applicant.approval_status: rejected
+      applicant.rejection_reason: "High debt-to-income ratio"
+
+  - name: approve_mortgage
+    priority: 1000
+    when: applicant.approval_status is not defined
+    then:
+      applicant.approval_status: approved
+      applicant.loan_amount: applicant.requested_loan_amount
