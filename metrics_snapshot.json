@@ -1,21 +1,24 @@
 {
   "snapshot": {
-    "runId": "run_1760685120793",
-    "timestamp": "2025-10-17T07:12:00.793Z",
+    "runId": "run_1760689862999",
+    "timestamp": "2025-10-17T08:31:02.999Z",
     "engineVersion": "3.1.0-hardened",
     "timing": {
-      "durationMs": 1
+      "durationMs": 10
     },
-    "primitives": {},
+    "primitives": {
+      "CONDITION_EVALUATOR": 14,
+      "RULE_APPLICATOR": 14
+    },
     "invariants": {
-      "violations": 1,
+      "violations": 28,
       "violationsByType": {
-        "Unknown primitive": 1
+        "Primitive error": 28
       },
       "checksPassed": 0
     },
     "execution": {
-      "totalTicks": 1,
+      "totalTicks": 28,
       "haltedEarly": false,
       "options": {
         "haltOnError": false,

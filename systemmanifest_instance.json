@@ -5,16 +5,31 @@
       "version": "3.0.0",
       "name": "KERN Grant Evaluator Runtime",
       "description": "Deterministic execution engine for evaluating research grants",
-      "author": "Maykon Meza"
+      "author": "Maykon Meza",
+      "lastModified": "2025-10-17T08:31:01.423Z"
     },
     "components": {
-      "primitives": { "path": "./kern_schemas/v3_primitives.json" },
-      "rules": { "path": "./kern_schemas/v3_rulesconfig.json" },
-      "invariants": { "path": "./kern_schemas/v3_invariant.json" },
-      "execution": { "path": "./kern_schemas/v3_kernexecution.json" },
-      "metrics": { "path": "./kern_schemas/v3_metrics.json" },
-      "ledger": { "path": "./kern_schemas/v3_mnemeledger.json" },
-      "testVectors": { "path": "./kern_schemas/v3_testvector.json" }
+      "primitives": {
+        "path": "./kern_schemas/v3_primitives.json"
+      },
+      "rules": {
+        "path": "./kern_schemas/mortgage-rules_v3_rulesconfig_kern_plan.json"
+      },
+      "invariants": {
+        "path": "./kern_schemas/v3_invariant.json"
+      },
+      "execution": {
+        "path": "./kern_schemas/v3_kernexecution.json"
+      },
+      "metrics": {
+        "path": "./kern_schemas/v3_metrics.json"
+      },
+      "ledger": {
+        "path": "./kern_schemas/v3_mnemeledger.json"
+      },
+      "testVectors": {
+        "path": "./kern_schemas/v3_testvector.json"
+      }
     },
     "contracts": {
       "execution": {
@@ -29,7 +44,10 @@
           "ITERATION_MANAGER"
         ],
         "invariantChecks": {
-          "STATE_MUTATOR": ["stateProgress", "consistencyCheck"]
+          "STATE_MUTATOR": [
+            "stateProgress",
+            "consistencyCheck"
+          ]
         }
       },
       "validation": {
@@ -45,9 +63,11 @@
     },
     "deployment": {
       "profiles": [
-        { "name": "development", "environment": "development" }
+        {
+          "name": "development",
+          "environment": "development"
+        }
       ]
     }
   }
 }
-

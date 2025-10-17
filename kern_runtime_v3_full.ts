@@ -75,6 +75,10 @@ function deepClone<T>(obj: T): T {
 // IV. PRIMITIVE LIBRARY
 // ================================================================
 
+// ================================================================
+// IV. PRIMITIVE LIBRARY
+// ================================================================
+
 const PrimitiveLibrary: Record<string, (input: any, context: any) => any> = {
   CONDITION_EVALUATOR: (input) => {
     try {
@@ -89,12 +93,12 @@ const PrimitiveLibrary: Record<string, (input: any, context: any) => any> = {
     try {
       const fn = new Function("input", `with(input){ return (${input.expression}); }`);
       const value = fn(input.context || {});
-      
+
       // 🔍 SYNTHETIC VIOLATION: NaN detection
       if (typeof value === 'number' && Number.isNaN(value)) {
         return { value, _violation: "NaN_detected" };
       }
-      
+
       return { value };
     } catch (err: any) {
       return { error: err.message };
@@ -133,19 +137,133 @@ const PrimitiveLibrary: Record<string, (input: any, context: any) => any> = {
     if (scores.length === 0) {
       return { normalized_score: NaN, _violation: "empty_scores_array" };
     }
-    
+
     const sum = scores.reduce((a: number, b: number) => a + b, 0);
     const normalized = sum / scores.length;
-    
+
     // Sometimes produce NaN for testing
     if (input.trigger_nan_test) {
       return { normalized_score: NaN, _violation: "synthetic_NaN_test" };
     }
-    
+
     return { normalized_score: normalized };
   },
-};
 
+  // 🧩 KERN Primitive Library Extension: RULE_APPLICATOR
+  RULE_APPLICATOR: (input, context) => {
+    const { ruleId, condition, assignments, enabled, priority } = input;
+
+    if (!enabled) {
+        return {
+            skipped: true,
+            reason: 'Rule disabled',
+            ruleId
+        };
+    }
+
+    // Evaluate condition if present
+    if (condition && condition !== "true") {
+        try {
+            // Create a safe evaluation context
+            const evalContext = { ...context.state };
+            const conditionFn = new Function("context", `with(context){ return (${condition}); }`);
+            const conditionResult = conditionFn(evalContext);
+
+            if (!conditionResult) {
+                return {
+                    skipped: true,
+                    reason: 'Condition not met',
+                    condition,
+                    ruleId
+                };
+            }
+        } catch (err: any) {
+            return {
+                error: `Condition evaluation failed: ${err.message}`,
+                condition,
+                ruleId
+            };
+        }
+    }
+
+    // Apply assignments
+    const results = {};
+    const updates = [];
+
+    for (const [fieldPath, expression] of Object.entries(assignments || {})) {
+        try {
+            let value;
+
+            // Handle template expressions {{...}}
+            if (typeof expression === 'string' && expression.startsWith('{{') && expression.endsWith('}}')) {
+                const templateExpr = expression.slice(2, -2).trim();
+                const evalContext = { ...context.state };
+
+                // Add utility functions to context
+                evalContext.Math = Math;
+                evalContext.Number = Number;
+                evalContext.now = () => new Date().toISOString();
+                evalContext.uuid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = Math.random() * 16 | 0;
+                    const v = c == 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+
+                const exprFn = new Function("context", `with(context){ return (${templateExpr}); }`);
+                value = exprFn(evalContext);
+            } else {
+                // Direct value assignment - handle type conversion
+                if (expression === "true") {
+                    value = true;
+                } else if (expression === "false") {
+                    value = false;
+                } else if (typeof expression === 'string' && !isNaN(Number(expression)) && expression !== "") {
+                    value = Number(expression);
+                } else {
+                    value = expression;
+                }
+            }
+
+            // Apply the assignment to state
+            const pathParts = fieldPath.split('.');
+            let obj = context.state;
+
+            // Navigate to the parent object
+            for (let i = 0; i < pathParts.length - 1; i++) {
+                const part = pathParts[i];
+                if (!obj[part]) {
+                    obj[part] = {};
+                }
+                obj = obj[part];
+            }
+
+            // Set the final value
+            const finalKey = pathParts[pathParts.length - 1];
+            obj[finalKey] = value;
+
+            updates.push({ field: fieldPath, value });
+            results[fieldPath] = value;
+
+        } catch (err: any) {
+            return {
+                error: `Assignment failed for ${fieldPath}: ${err.message}`,
+                expression,
+                fieldPath,
+                ruleId
+            };
+        }
+    }
+
+    return {
+        success: true,
+        ruleId,
+        priority,
+        updatesApplied: updates.length,
+        updates,
+        results
+    };
+  }, // <-- The new primitive ends here
+};
 // ================================================================
 // V. KERN EXECUTION ENGINE - HARDENED VERSION
 // ================================================================

@@ -1,44 +1,22 @@
 {
-  "transformation_pipeline": [
-    {
-      "id": "mortgage_approval_applicator",
-      "primitive": "RULE_APPLICATOR",
-      "input_fields": [
-        "*"
-      ],
-      "output_fields": [
-        "*"
-      ],
-      "params": {
-        "ruleSetId": "mortgage_approval"
-      }
-    }
-  ],
-  "contracts": {
-    "executionMode": "priority_ordered",
-    "conflictResolution": "priority_override",
-    "invariantChecking": "per_iteration",
-    "auditLevel": "detailed",
-    "deterministic": true
-  },
-  "mortgage_approval": {
+  "ruleSet": {
     "id": "mortgage_approval",
     "version": "1.0.0",
-    "name": "mortgage_approval",
+    "name": "Basic mortgage approval rules",
     "description": "Basic mortgage approval rules",
     "domain": "financial_services",
     "author": "system",
-    "createdAt": "2025-10-17T07:25:43.436Z",
-    "lastModified": "2025-10-17T07:25:43.437Z",
+    "createdAt": "2025-10-17T08:31:01.386Z",
+    "lastModified": "2025-10-17T08:31:01.386Z",
     "rules": [
       {
         "name": "calculate_combined_income",
         "priority": 1,
-        "if": "true",
+        "if": "applicant.annual_income  >  0  &&  loan.processed  != = true",
         "then": {
           "household.combined_income": "{{applicant.annual_income + (co_applicant.exists ? co_applicant.annual_income : 0)}}",
           "household.primary_income": "{{applicant.annual_income}}",
-          "household.income_calculated": true
+          "household.income_calculated": "true"
         },
         "description": "Auto-generated from YAML rule: calculate_combined_income",
         "category": "default",
@@ -50,10 +28,10 @@
       {
         "name": "calculate_combined_debt",
         "priority": 2,
-        "if": "true",
+        "if": "household.income_calculated  ==  true  &&  household.debt_calculated  != = true",
         "then": {
           "household.combined_debt": "{{applicant.existing_debt + (co_applicant.exists ? co_applicant.existing_debt : 0)}}",
-          "household.debt_calculated": true
+          "household.debt_calculated": "true"
         },
         "description": "Auto-generated from YAML rule: calculate_combined_debt",
         "category": "default",
@@ -65,10 +43,10 @@
       {
         "name": "determine_credit_score",
         "priority": 3,
-        "if": "true",
+        "if": "household.income_calculated  ==  true  &&  household.credit_determined  != = true",
         "then": {
           "household.credit_score": "{{co_applicant.exists ? Math.min(applicant.credit_score, co_applicant.credit_score) : applicant.credit_score}}",
-          "household.credit_determined": true
+          "household.credit_determined": "true"
         },
         "description": "Auto-generated from YAML rule: determine_credit_score",
         "category": "default",
@@ -80,11 +58,11 @@
       {
         "name": "validate_down_payment",
         "priority": 4,
-        "if": "true",
+        "if": "loan.down_payment  >  0  &&  loan.down_payment_validated  != = true",
         "then": {
           "loan.down_payment_percent": "{{(loan.down_payment / property.purchase_price) * 100}}",
           "loan.ltv_ratio": "{{((property.purchase_price - loan.down_payment) / property.purchase_price) * 100}}",
-          "loan.down_payment_validated": true
+          "loan.down_payment_validated": "true"
         },
         "description": "Auto-generated from YAML rule: validate_down_payment",
         "category": "default",
@@ -96,13 +74,13 @@
       {
         "name": "determine_interest_rate",
         "priority": 5,
-        "if": "true",
+        "if": "household.credit_score  >  0  &&  loan.interest_rate  ==  0  &&  loan.rate_determined  != = true",
         "then": {
-          "loan.base_rate": 6.75,
+          "loan.base_rate": "6.75",
           "loan.credit_adjustment": "{{household.credit_score >= 760 ? -0.5 : household.credit_score >= 720 ? -0.25 : household.credit_score >= 680 ? 0 : household.credit_score >= 640 ? 0.25 : 0.75}}",
           "loan.ltv_adjustment": "{{loan.ltv_ratio > 80 ? 0.25 : 0}}",
           "loan.interest_rate": "{{ Number(loan.base_rate + loan.credit_adjustment + loan.ltv_adjustment)}}",
-          "loan.rate_determined": true
+          "loan.rate_determined": "true"
         },
         "description": "Auto-generated from YAML rule: determine_interest_rate",
         "category": "default",
@@ -114,12 +92,12 @@
       {
         "name": "require_mip_or_pmi",
         "priority": 6,
-        "if": "true",
+        "if": "insurance.mip_calculated  != = true",
         "then": {
-          "insurance.pmi_required": true,
+          "insurance.pmi_required": "true",
           "insurance.pmi_rate": "{{loan.type == 'fha' ? 0.85 : (loan.ltv_ratio > 80 ? 0.5 : 0)}}",
           "insurance.pmi_monthly": "{{(loan.requested_amount * (insurance.pmi_rate / 100)) / 12}}",
-          "insurance.mip_calculated": true
+          "insurance.mip_calculated": "true"
         },
         "description": "Auto-generated from YAML rule: require_mip_or_pmi",
         "category": "default",
@@ -131,13 +109,13 @@
       {
         "name": "calculate_monthly_payment",
         "priority": 7,
-        "if": "true",
+        "if": "loan.interest_rate  >  0  &&  loan.monthly_payment  == = undefined",
         "then": {
           "loan.monthly_rate": "{{loan.interest_rate / 100 / 12}}",
           "loan.num_payments": "{{loan.term_years * 12}}",
           "loan.monthly_principal_interest": "{{ Number(loan.requested_amount * (loan.monthly_rate * Math.pow(1 + loan.monthly_rate, loan.num_payments)) / (Math.pow(1 + loan.monthly_rate, loan.num_payments) - 1))}}",
           "loan.monthly_payment": "{{Number(loan.monthly_principal_interest) + (Number(property.property_tax_annual / 12)) + (Number(insurance.homeowners_annual / 12)) + Number(property.hoa_monthly || 0) + Number(insurance.pmi_monthly || 0)}}",
-          "loan.payment_calculated": true
+          "loan.payment_calculated": "true"
         },
         "description": "Auto-generated from YAML rule: calculate_monthly_payment",
         "category": "default",
@@ -149,13 +127,13 @@
       {
         "name": "calculate_debt_to_income",
         "priority": 8,
-        "if": "true",
+        "if": "loan.payment_calculated  ==  true  &&  ratios.calculated  != = true",
         "then": {
           "ratios.monthly_income": "{{household.combined_income / 12}}",
           "ratios.monthly_debt": "{{household.combined_debt / 12}}",
           "ratios.housing_ratio": "{{(loan.monthly_payment / ratios.monthly_income) * 100}}",
           "ratios.debt_to_income": "{{ (Number(ratios.monthly_debt + Number(loan.monthly_payment)) / Number(ratios.monthly_income)) * 100}}",
-          "ratios.calculated": true
+          "ratios.calculated": "true"
         },
         "description": "Auto-generated from YAML rule: calculate_debt_to_income",
         "category": "default",
@@ -167,10 +145,10 @@
       {
         "name": "check_housing_ratio_limit",
         "priority": 9,
-        "if": "true",
+        "if": "ratios.housing_ratio  >  0  &&  approval.housing_ratio_checked  != = true",
         "then": {
           "approval.housing_ratio_status": "{{loan.type == 'fha' ? (ratios.housing_ratio <= 31 ? 'pass' : ratios.housing_ratio <= 40 ? 'conditional' : 'fail') : (ratios.housing_ratio <= 28 ? 'pass' : ratios.housing_ratio <= 31 ? 'conditional' : 'fail')}}",
-          "approval.housing_ratio_checked": true
+          "approval.housing_ratio_checked": "true"
         },
         "description": "Auto-generated from YAML rule: check_housing_ratio_limit",
         "category": "default",
@@ -182,10 +160,10 @@
       {
         "name": "check_debt_to_income_limit",
         "priority": 10,
-        "if": "true",
+        "if": "ratios.debt_to_income  >  0  &&  approval.dti_checked  != = true",
         "then": {
           "approval.dti_status": "{{loan.type == 'fha' ? (ratios.debt_to_income <= 43 ? 'pass' : ratios.debt_to_income <= 50 ? 'conditional' : 'fail') : (ratios.debt_to_income <= 36 ? 'pass' : ratios.debt_to_income <= 43 ? 'conditional' : 'fail')}}",
-          "approval.dti_checked": true
+          "approval.dti_checked": "true"
         },
         "description": "Auto-generated from YAML rule: check_debt_to_income_limit",
         "category": "default",
@@ -197,10 +175,10 @@
       {
         "name": "check_credit_requirements",
         "priority": 11,
-        "if": "true",
+        "if": "household.credit_score  >  0  &&  approval.credit_checked  != = true",
         "then": {
           "approval.credit_status": "{{loan.type == 'fha' ? (household.credit_score >= 640 ? 'good' : household.credit_score >= 580 ? 'conditional' : 'insufficient') : (household.credit_score >= 740 ? 'excellent' : household.credit_score >= 680 ? 'good' : household.credit_score >= 620 ? 'conditional' : 'insufficient')}}",
-          "approval.credit_checked": true
+          "approval.credit_checked": "true"
         },
         "description": "Auto-generated from YAML rule: check_credit_requirements",
         "category": "default",
@@ -212,11 +190,11 @@
       {
         "name": "determine_final_approval",
         "priority": 12,
-        "if": "true",
+        "if": "approval.housing_ratio_checked  ==  true  &&  approval.dti_checked  ==  true  &&  approval.credit_checked  ==  true  &&  approval.final_decision  != = true",
         "then": {
           "approval.can_approve": "{{approval.housing_ratio_status != 'fail' && approval.dti_status != 'fail' && approval.credit_status != 'insufficient'}}",
           "approval.status": "{{approval.can_approve ? (approval.housing_ratio_status == 'conditional' || approval.dti_status == 'conditional' || approval.credit_status == 'conditional' ? 'conditional_approval' : 'approved') : 'denied'}}",
-          "approval.final_decision": true
+          "approval.final_decision": "true"
         },
         "description": "Auto-generated from YAML rule: determine_final_approval",
         "category": "default",
@@ -228,10 +206,10 @@
       {
         "name": "calculate_closing_costs",
         "priority": 13,
-        "if": "true",
+        "if": "approval.status  ==  'approved'  &&  loan.closing_costs  == = undefined",
         "then": {
           "loan.origination_fee": "{{loan.requested_amount * 0.005}}",
-          "loan.appraisal_fee": 600,
+          "loan.appraisal_fee": "600",
           "loan.title_insurance": "{{property.purchase_price * 0.003}}",
           "loan.closing_costs": "{{loan.origination_fee + loan.appraisal_fee + loan.title_insurance + 2500}}",
           "loan.total_cash_needed": "{{loan.down_payment + loan.closing_costs}}"
@@ -246,9 +224,9 @@
       {
         "name": "finalize_loan_processing",
         "priority": 14,
-        "if": "true",
+        "if": "approval.final_decision  ==  true  &&  loan.processed  != = true",
         "then": {
-          "loan.processed": true,
+          "loan.processed": "true",
           "loan.application_date": "{{now()}}",
           "loan.reference_number": "{{uuid()}}",
           "loan.next_step": "{{approval.status == 'approved' ? 'Schedule appraisal and title search' : approval.status == 'conditional_approval' ? 'Submit additional documentation' : 'Consider alternative financing options'}}"
@@ -264,6 +242,13 @@
     "categories": [
       "default"
     ],
-    "maxIterations": 50
+    "maxIterations": 20
+  },
+  "contracts": {
+    "executionMode": "priority_ordered",
+    "conflictResolution": "priority_override",
+    "invariantChecking": "per_iteration",
+    "auditLevel": "detailed",
+    "deterministic": true
   }
 }

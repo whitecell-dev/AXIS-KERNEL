@@ -1,0 +1,514 @@
+{
+  "transformation_pipeline": [
+    {
+      "id": "calculate_combined_income_condition",
+      "primitive": "CONDITION_EVALUATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "calculate_combined_income_condition_result"
+      ],
+      "params": {
+        "condition": "applicant.annual_income  >  0  &&  loan.processed  != = true",
+        "ruleName": "calculate_combined_income"
+      }
+    },
+    {
+      "id": "calculate_combined_income",
+      "primitive": "RULE_APPLICATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "*"
+      ],
+      "params": {
+        "ruleId": "calculate_combined_income",
+        "priority": 1,
+        "condition": "applicant.annual_income  >  0  &&  loan.processed  != = true",
+        "assignments": {
+          "household.combined_income": "{{applicant.annual_income + (co_applicant.exists ? co_applicant.annual_income : 0)}}",
+          "household.primary_income": "{{applicant.annual_income}}",
+          "household.income_calculated": "true"
+        },
+        "enabled": true
+      }
+    },
+    {
+      "id": "calculate_combined_debt_condition",
+      "primitive": "CONDITION_EVALUATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "calculate_combined_debt_condition_result"
+      ],
+      "params": {
+        "condition": "household.income_calculated  ==  true  &&  household.debt_calculated  != = true",
+        "ruleName": "calculate_combined_debt"
+      }
+    },
+    {
+      "id": "calculate_combined_debt",
+      "primitive": "RULE_APPLICATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "*"
+      ],
+      "params": {
+        "ruleId": "calculate_combined_debt",
+        "priority": 2,
+        "condition": "household.income_calculated  ==  true  &&  household.debt_calculated  != = true",
+        "assignments": {
+          "household.combined_debt": "{{applicant.existing_debt + (co_applicant.exists ? co_applicant.existing_debt : 0)}}",
+          "household.debt_calculated": "true"
+        },
+        "enabled": true
+      }
+    },
+    {
+      "id": "determine_credit_score_condition",
+      "primitive": "CONDITION_EVALUATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "determine_credit_score_condition_result"
+      ],
+      "params": {
+        "condition": "household.income_calculated  ==  true  &&  household.credit_determined  != = true",
+        "ruleName": "determine_credit_score"
+      }
+    },
+    {
+      "id": "determine_credit_score",
+      "primitive": "RULE_APPLICATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "*"
+      ],
+      "params": {
+        "ruleId": "determine_credit_score",
+        "priority": 3,
+        "condition": "household.income_calculated  ==  true  &&  household.credit_determined  != = true",
+        "assignments": {
+          "household.credit_score": "{{co_applicant.exists ? Math.min(applicant.credit_score, co_applicant.credit_score) : applicant.credit_score}}",
+          "household.credit_determined": "true"
+        },
+        "enabled": true
+      }
+    },
+    {
+      "id": "validate_down_payment_condition",
+      "primitive": "CONDITION_EVALUATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "validate_down_payment_condition_result"
+      ],
+      "params": {
+        "condition": "loan.down_payment  >  0  &&  loan.down_payment_validated  != = true",
+        "ruleName": "validate_down_payment"
+      }
+    },
+    {
+      "id": "validate_down_payment",
+      "primitive": "RULE_APPLICATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "*"
+      ],
+      "params": {
+        "ruleId": "validate_down_payment",
+        "priority": 4,
+        "condition": "loan.down_payment  >  0  &&  loan.down_payment_validated  != = true",
+        "assignments": {
+          "loan.down_payment_percent": "{{(loan.down_payment / property.purchase_price) * 100}}",
+          "loan.ltv_ratio": "{{((property.purchase_price - loan.down_payment) / property.purchase_price) * 100}}",
+          "loan.down_payment_validated": "true"
+        },
+        "enabled": true
+      }
+    },
+    {
+      "id": "determine_interest_rate_condition",
+      "primitive": "CONDITION_EVALUATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "determine_interest_rate_condition_result"
+      ],
+      "params": {
+        "condition": "household.credit_score  >  0  &&  loan.interest_rate  ==  0  &&  loan.rate_determined  != = true",
+        "ruleName": "determine_interest_rate"
+      }
+    },
+    {
+      "id": "determine_interest_rate",
+      "primitive": "RULE_APPLICATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "*"
+      ],
+      "params": {
+        "ruleId": "determine_interest_rate",
+        "priority": 5,
+        "condition": "household.credit_score  >  0  &&  loan.interest_rate  ==  0  &&  loan.rate_determined  != = true",
+        "assignments": {
+          "loan.base_rate": "6.75",
+          "loan.credit_adjustment": "{{household.credit_score >= 760 ? -0.5 : household.credit_score >= 720 ? -0.25 : household.credit_score >= 680 ? 0 : household.credit_score >= 640 ? 0.25 : 0.75}}",
+          "loan.ltv_adjustment": "{{loan.ltv_ratio > 80 ? 0.25 : 0}}",
+          "loan.interest_rate": "{{ Number(loan.base_rate + loan.credit_adjustment + loan.ltv_adjustment)}}",
+          "loan.rate_determined": "true"
+        },
+        "enabled": true
+      }
+    },
+    {
+      "id": "require_mip_or_pmi_condition",
+      "primitive": "CONDITION_EVALUATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "require_mip_or_pmi_condition_result"
+      ],
+      "params": {
+        "condition": "insurance.mip_calculated  != = true",
+        "ruleName": "require_mip_or_pmi"
+      }
+    },
+    {
+      "id": "require_mip_or_pmi",
+      "primitive": "RULE_APPLICATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "*"
+      ],
+      "params": {
+        "ruleId": "require_mip_or_pmi",
+        "priority": 6,
+        "condition": "insurance.mip_calculated  != = true",
+        "assignments": {
+          "insurance.pmi_required": "true",
+          "insurance.pmi_rate": "{{loan.type == 'fha' ? 0.85 : (loan.ltv_ratio > 80 ? 0.5 : 0)}}",
+          "insurance.pmi_monthly": "{{(loan.requested_amount * (insurance.pmi_rate / 100)) / 12}}",
+          "insurance.mip_calculated": "true"
+        },
+        "enabled": true
+      }
+    },
+    {
+      "id": "calculate_monthly_payment_condition",
+      "primitive": "CONDITION_EVALUATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "calculate_monthly_payment_condition_result"
+      ],
+      "params": {
+        "condition": "loan.interest_rate  >  0  &&  loan.monthly_payment  == = undefined",
+        "ruleName": "calculate_monthly_payment"
+      }
+    },
+    {
+      "id": "calculate_monthly_payment",
+      "primitive": "RULE_APPLICATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "*"
+      ],
+      "params": {
+        "ruleId": "calculate_monthly_payment",
+        "priority": 7,
+        "condition": "loan.interest_rate  >  0  &&  loan.monthly_payment  == = undefined",
+        "assignments": {
+          "loan.monthly_rate": "{{loan.interest_rate / 100 / 12}}",
+          "loan.num_payments": "{{loan.term_years * 12}}",
+          "loan.monthly_principal_interest": "{{ Number(loan.requested_amount * (loan.monthly_rate * Math.pow(1 + loan.monthly_rate, loan.num_payments)) / (Math.pow(1 + loan.monthly_rate, loan.num_payments) - 1))}}",
+          "loan.monthly_payment": "{{Number(loan.monthly_principal_interest) + (Number(property.property_tax_annual / 12)) + (Number(insurance.homeowners_annual / 12)) + Number(property.hoa_monthly || 0) + Number(insurance.pmi_monthly || 0)}}",
+          "loan.payment_calculated": "true"
+        },
+        "enabled": true
+      }
+    },
+    {
+      "id": "calculate_debt_to_income_condition",
+      "primitive": "CONDITION_EVALUATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "calculate_debt_to_income_condition_result"
+      ],
+      "params": {
+        "condition": "loan.payment_calculated  ==  true  &&  ratios.calculated  != = true",
+        "ruleName": "calculate_debt_to_income"
+      }
+    },
+    {
+      "id": "calculate_debt_to_income",
+      "primitive": "RULE_APPLICATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "*"
+      ],
+      "params": {
+        "ruleId": "calculate_debt_to_income",
+        "priority": 8,
+        "condition": "loan.payment_calculated  ==  true  &&  ratios.calculated  != = true",
+        "assignments": {
+          "ratios.monthly_income": "{{household.combined_income / 12}}",
+          "ratios.monthly_debt": "{{household.combined_debt / 12}}",
+          "ratios.housing_ratio": "{{(loan.monthly_payment / ratios.monthly_income) * 100}}",
+          "ratios.debt_to_income": "{{ (Number(ratios.monthly_debt + Number(loan.monthly_payment)) / Number(ratios.monthly_income)) * 100}}",
+          "ratios.calculated": "true"
+        },
+        "enabled": true
+      }
+    },
+    {
+      "id": "check_housing_ratio_limit_condition",
+      "primitive": "CONDITION_EVALUATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "check_housing_ratio_limit_condition_result"
+      ],
+      "params": {
+        "condition": "ratios.housing_ratio  >  0  &&  approval.housing_ratio_checked  != = true",
+        "ruleName": "check_housing_ratio_limit"
+      }
+    },
+    {
+      "id": "check_housing_ratio_limit",
+      "primitive": "RULE_APPLICATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "*"
+      ],
+      "params": {
+        "ruleId": "check_housing_ratio_limit",
+        "priority": 9,
+        "condition": "ratios.housing_ratio  >  0  &&  approval.housing_ratio_checked  != = true",
+        "assignments": {
+          "approval.housing_ratio_status": "{{loan.type == 'fha' ? (ratios.housing_ratio <= 31 ? 'pass' : ratios.housing_ratio <= 40 ? 'conditional' : 'fail') : (ratios.housing_ratio <= 28 ? 'pass' : ratios.housing_ratio <= 31 ? 'conditional' : 'fail')}}",
+          "approval.housing_ratio_checked": "true"
+        },
+        "enabled": true
+      }
+    },
+    {
+      "id": "check_debt_to_income_limit_condition",
+      "primitive": "CONDITION_EVALUATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "check_debt_to_income_limit_condition_result"
+      ],
+      "params": {
+        "condition": "ratios.debt_to_income  >  0  &&  approval.dti_checked  != = true",
+        "ruleName": "check_debt_to_income_limit"
+      }
+    },
+    {
+      "id": "check_debt_to_income_limit",
+      "primitive": "RULE_APPLICATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "*"
+      ],
+      "params": {
+        "ruleId": "check_debt_to_income_limit",
+        "priority": 10,
+        "condition": "ratios.debt_to_income  >  0  &&  approval.dti_checked  != = true",
+        "assignments": {
+          "approval.dti_status": "{{loan.type == 'fha' ? (ratios.debt_to_income <= 43 ? 'pass' : ratios.debt_to_income <= 50 ? 'conditional' : 'fail') : (ratios.debt_to_income <= 36 ? 'pass' : ratios.debt_to_income <= 43 ? 'conditional' : 'fail')}}",
+          "approval.dti_checked": "true"
+        },
+        "enabled": true
+      }
+    },
+    {
+      "id": "check_credit_requirements_condition",
+      "primitive": "CONDITION_EVALUATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "check_credit_requirements_condition_result"
+      ],
+      "params": {
+        "condition": "household.credit_score  >  0  &&  approval.credit_checked  != = true",
+        "ruleName": "check_credit_requirements"
+      }
+    },
+    {
+      "id": "check_credit_requirements",
+      "primitive": "RULE_APPLICATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "*"
+      ],
+      "params": {
+        "ruleId": "check_credit_requirements",
+        "priority": 11,
+        "condition": "household.credit_score  >  0  &&  approval.credit_checked  != = true",
+        "assignments": {
+          "approval.credit_status": "{{loan.type == 'fha' ? (household.credit_score >= 640 ? 'good' : household.credit_score >= 580 ? 'conditional' : 'insufficient') : (household.credit_score >= 740 ? 'excellent' : household.credit_score >= 680 ? 'good' : household.credit_score >= 620 ? 'conditional' : 'insufficient')}}",
+          "approval.credit_checked": "true"
+        },
+        "enabled": true
+      }
+    },
+    {
+      "id": "determine_final_approval_condition",
+      "primitive": "CONDITION_EVALUATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "determine_final_approval_condition_result"
+      ],
+      "params": {
+        "condition": "approval.housing_ratio_checked  ==  true  &&  approval.dti_checked  ==  true  &&  approval.credit_checked  ==  true  &&  approval.final_decision  != = true",
+        "ruleName": "determine_final_approval"
+      }
+    },
+    {
+      "id": "determine_final_approval",
+      "primitive": "RULE_APPLICATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "*"
+      ],
+      "params": {
+        "ruleId": "determine_final_approval",
+        "priority": 12,
+        "condition": "approval.housing_ratio_checked  ==  true  &&  approval.dti_checked  ==  true  &&  approval.credit_checked  ==  true  &&  approval.final_decision  != = true",
+        "assignments": {
+          "approval.can_approve": "{{approval.housing_ratio_status != 'fail' && approval.dti_status != 'fail' && approval.credit_status != 'insufficient'}}",
+          "approval.status": "{{approval.can_approve ? (approval.housing_ratio_status == 'conditional' || approval.dti_status == 'conditional' || approval.credit_status == 'conditional' ? 'conditional_approval' : 'approved') : 'denied'}}",
+          "approval.final_decision": "true"
+        },
+        "enabled": true
+      }
+    },
+    {
+      "id": "calculate_closing_costs_condition",
+      "primitive": "CONDITION_EVALUATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "calculate_closing_costs_condition_result"
+      ],
+      "params": {
+        "condition": "approval.status  ==  'approved'  &&  loan.closing_costs  == = undefined",
+        "ruleName": "calculate_closing_costs"
+      }
+    },
+    {
+      "id": "calculate_closing_costs",
+      "primitive": "RULE_APPLICATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "*"
+      ],
+      "params": {
+        "ruleId": "calculate_closing_costs",
+        "priority": 13,
+        "condition": "approval.status  ==  'approved'  &&  loan.closing_costs  == = undefined",
+        "assignments": {
+          "loan.origination_fee": "{{loan.requested_amount * 0.005}}",
+          "loan.appraisal_fee": "600",
+          "loan.title_insurance": "{{property.purchase_price * 0.003}}",
+          "loan.closing_costs": "{{loan.origination_fee + loan.appraisal_fee + loan.title_insurance + 2500}}",
+          "loan.total_cash_needed": "{{loan.down_payment + loan.closing_costs}}"
+        },
+        "enabled": true
+      }
+    },
+    {
+      "id": "finalize_loan_processing_condition",
+      "primitive": "CONDITION_EVALUATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "finalize_loan_processing_condition_result"
+      ],
+      "params": {
+        "condition": "approval.final_decision  ==  true  &&  loan.processed  != = true",
+        "ruleName": "finalize_loan_processing"
+      }
+    },
+    {
+      "id": "finalize_loan_processing",
+      "primitive": "RULE_APPLICATOR",
+      "input_fields": [
+        "*"
+      ],
+      "output_fields": [
+        "*"
+      ],
+      "params": {
+        "ruleId": "finalize_loan_processing",
+        "priority": 14,
+        "condition": "approval.final_decision  ==  true  &&  loan.processed  != = true",
+        "assignments": {
+          "loan.processed": "true",
+          "loan.application_date": "{{now()}}",
+          "loan.reference_number": "{{uuid()}}",
+          "loan.next_step": "{{approval.status == 'approved' ? 'Schedule appraisal and title search' : approval.status == 'conditional_approval' ? 'Submit additional documentation' : 'Consider alternative financing options'}}"
+        },
+        "enabled": true
+      }
+    }
+  ],
+  "metadata": {
+    "id": "mortgage_approval",
+    "version": "1.0.0",
+    "name": "Basic mortgage approval rules",
+    "description": "Basic mortgage approval rules",
+    "convertedFrom": "v3_rulesconfig",
+    "convertedAt": "2025-10-17T08:31:01.422Z"
+  },
+  "contracts": {
+    "executionMode": "priority_ordered",
+    "conflictResolution": "priority_override",
+    "invariantChecking": "per_iteration",
+    "auditLevel": "detailed",
+    "deterministic": true
+  }
+}

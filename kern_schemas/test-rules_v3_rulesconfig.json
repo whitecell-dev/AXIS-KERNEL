@@ -1,0 +1,54 @@
+{
+  "ruleSet": {
+    "id": "simple_test",
+    "version": "1.0.0",
+    "name": "Simple test rules",
+    "description": "Simple test rules",
+    "domain": "testing",
+    "author": "system",
+    "createdAt": "2025-10-17T07:55:36.545Z",
+    "lastModified": "2025-10-17T07:55:36.545Z",
+    "rules": [
+      {
+        "name": "set_status",
+        "priority": 100,
+        "if": "true",
+        "then": {
+          "status": "processed",
+          "processed_at": "{{ new Date().toISOString() }}"
+        },
+        "description": "Auto-generated from YAML rule: set_status",
+        "category": "default",
+        "enabled": true,
+        "version": "1.0.0",
+        "tags": [],
+        "dependencies": []
+      },
+      {
+        "name": "calculate_score",
+        "priority": 200,
+        "if": "true",
+        "then": {
+          "total_score": "{{ score1 + score2 }}"
+        },
+        "description": "Auto-generated from YAML rule: calculate_score",
+        "category": "default",
+        "enabled": true,
+        "version": "1.0.0",
+        "tags": [],
+        "dependencies": []
+      }
+    ],
+    "categories": [
+      "default"
+    ],
+    "maxIterations": 50
+  },
+  "contracts": {
+    "executionMode": "priority_ordered",
+    "conflictResolution": "priority_override",
+    "invariantChecking": "per_iteration",
+    "auditLevel": "detailed",
+    "deterministic": true
+  }
+}

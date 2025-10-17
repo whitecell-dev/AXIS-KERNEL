@@ -1,0 +1,32 @@
+{
+  "applicant": {
+    "annual_income": 85000,
+    "credit_score": 740,
+    "existing_debt": 12000
+  },
+  "co_applicant": {
+    "exists": true,
+    "annual_income": 55000,
+    "credit_score": 720,
+    "existing_debt": 8000
+  },
+  "loan": {
+    "requested_amount": 320000,
+    "down_payment": 64000,
+    "term_years": 30,
+    "type": "conventional",
+    "interest_rate": 0,
+    "processed": false
+  },
+  "property": {
+    "purchase_price": 384000,
+    "property_tax_annual": 4600,
+    "hoa_monthly": 125
+  },
+  "insurance": {
+    "homeowners_annual": 1400
+  },
+  "household": {},
+  "ratios": {},
+  "approval": {}
+}

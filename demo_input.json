@@ -1,0 +1,22 @@
+{
+  "applicant": {
+    "annual_income": 75000,
+    "credit_score": 720,
+    "existing_debt": 15000
+  },
+  "loan": {
+    "requested_amount": 300000,
+    "down_payment": 60000,
+    "term_years": 30,
+    "type": "conventional",
+    "interest_rate": 0
+  },
+  "property": {
+    "purchase_price": 360000,
+    "property_tax_annual": 4320,
+    "hoa_monthly": 150
+  },
+  "insurance": {
+    "homeowners_annual": 1200
+  }
+}

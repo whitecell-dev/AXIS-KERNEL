@@ -1,16 +1,1169 @@
 [
   {
-    "id": "e16f1818-2965-4098-8b96-b9ee5586d759",
-    "timestamp": "2025-10-17T07:12:00.792Z",
+    "id": "37e56e29-94f8-41cf-adcb-8251db2bd5da",
+    "timestamp": "2025-10-17T08:31:02.990Z",
     "operation": "VIOLATION_RECORDED",
     "payload": {
       "tick": 1,
+      "primitive": "CONDITION_EVALUATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Unexpected token '='",
+      "inputSample": {
+        "condition": "applicant.annual_income  >  0  &&  loan.processed  != = true",
+        "ruleName": "calculate_combined_income"
+      },
+      "outputSample": {
+        "result": false,
+        "error": "Unexpected token '='"
+      },
+      "timestamp": "2025-10-17T08:31:02.989Z"
+    },
+    "hash": "23c579fb9002173818bdb5bd9b882d49d08ac2ce441cc4deba4c9c65f42c3b77"
+  },
+  {
+    "id": "6fb0fffc-1834-4cdf-aabc-0351af5aeae9",
+    "timestamp": "2025-10-17T08:31:02.990Z",
+    "operation": "CONDITION_EVALUATOR",
+    "payload": {
+      "input": {
+        "condition": "applicant.annual_income  >  0  &&  loan.processed  != = true",
+        "ruleName": "calculate_combined_income"
+      },
+      "output": {
+        "result": false,
+        "error": "Unexpected token '='"
+      }
+    },
+    "hash": "fb35c34ea7e4388f7d47db18becb54115fdeb00c0da341016061098ecb7ad851"
+  },
+  {
+    "id": "e6ff6fc4-4fd0-4014-ab6f-42081f945651",
+    "timestamp": "2025-10-17T08:31:02.991Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 2,
       "primitive": "RULE_APPLICATOR",
       "type": "InvariantViolation",
-      "message": "Unknown primitive: RULE_APPLICATOR",
-      "inputSample": {},
-      "timestamp": "2025-10-17T07:12:00.792Z"
+      "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+      "inputSample": {
+        "ruleId": "calculate_combined_income",
+        "priority": 1
+      },
+      "outputSample": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "applicant.annual_income  >  0  &&  loan.processed  != = true",
+        "ruleId": "calculate_combined_income"
+      },
+      "timestamp": "2025-10-17T08:31:02.991Z"
     },
-    "hash": "7978b31fb4c4a17c8b8ed9dadd100c8dd0d7a90d13e14f347c99d4fb95cc7dff"
+    "hash": "e7cdebc6110c4103778b84db607120263302746789fbdd9cf771c9991723c5be"
+  },
+  {
+    "id": "279332f8-983a-436d-b354-eaf0a73acf75",
+    "timestamp": "2025-10-17T08:31:02.991Z",
+    "operation": "RULE_APPLICATOR",
+    "payload": {
+      "input": {
+        "ruleId": "calculate_combined_income",
+        "priority": 1,
+        "condition": "applicant.annual_income  >  0  &&  loan.processed  != = true",
+        "assignments": {
+          "household.combined_income": "{{applicant.annual_income + (co_applicant.exists ? co_applicant.annual_income : 0)}}",
+          "household.primary_income": "{{applicant.annual_income}}",
+          "household.income_calculated": "true"
+        },
+        "enabled": true
+      },
+      "output": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "applicant.annual_income  >  0  &&  loan.processed  != = true",
+        "ruleId": "calculate_combined_income"
+      }
+    },
+    "hash": "a6d48d67379e4c166d170b54e4c2c3bbde856b6b203e6ad3d723f434807cdf64"
+  },
+  {
+    "id": "dfa5750d-f647-43fc-b75a-d98e9c2521d6",
+    "timestamp": "2025-10-17T08:31:02.991Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 3,
+      "primitive": "CONDITION_EVALUATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Unexpected token '='",
+      "inputSample": {
+        "condition": "household.income_calculated  ==  true  &&  household.debt_calculated  != = true",
+        "ruleName": "calculate_combined_debt"
+      },
+      "outputSample": {
+        "result": false,
+        "error": "Unexpected token '='"
+      },
+      "timestamp": "2025-10-17T08:31:02.991Z"
+    },
+    "hash": "724c7287d260046defe5948eca783ac6a20d422776fc2eb8e95a5a80d2fb38b0"
+  },
+  {
+    "id": "90b48f08-dd57-4e86-9fc4-9789421c545d",
+    "timestamp": "2025-10-17T08:31:02.992Z",
+    "operation": "CONDITION_EVALUATOR",
+    "payload": {
+      "input": {
+        "condition": "household.income_calculated  ==  true  &&  household.debt_calculated  != = true",
+        "ruleName": "calculate_combined_debt"
+      },
+      "output": {
+        "result": false,
+        "error": "Unexpected token '='"
+      }
+    },
+    "hash": "0128ab80f293ee7614a14e60bb6cb8b94cc3f4a4820729ed24a4e74ab9348285"
+  },
+  {
+    "id": "ce1fd441-c3b9-4d0b-84c0-762cfe4dee93",
+    "timestamp": "2025-10-17T08:31:02.992Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 4,
+      "primitive": "RULE_APPLICATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+      "inputSample": {
+        "ruleId": "calculate_combined_debt",
+        "priority": 2
+      },
+      "outputSample": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "household.income_calculated  ==  true  &&  household.debt_calculated  != = true",
+        "ruleId": "calculate_combined_debt"
+      },
+      "timestamp": "2025-10-17T08:31:02.992Z"
+    },
+    "hash": "7b1c86de54e550e1e85c3807bed2fccc6bd56b432a036c58f315fe576ace02f7"
+  },
+  {
+    "id": "1326caa6-056a-41ad-9471-5c4ecc787f19",
+    "timestamp": "2025-10-17T08:31:02.992Z",
+    "operation": "RULE_APPLICATOR",
+    "payload": {
+      "input": {
+        "ruleId": "calculate_combined_debt",
+        "priority": 2,
+        "condition": "household.income_calculated  ==  true  &&  household.debt_calculated  != = true",
+        "assignments": {
+          "household.combined_debt": "{{applicant.existing_debt + (co_applicant.exists ? co_applicant.existing_debt : 0)}}",
+          "household.debt_calculated": "true"
+        },
+        "enabled": true
+      },
+      "output": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "household.income_calculated  ==  true  &&  household.debt_calculated  != = true",
+        "ruleId": "calculate_combined_debt"
+      }
+    },
+    "hash": "f8bfcbc85b3414fb13a32c7f8977df40834e6781149da7be7101c6675ea1aa15"
+  },
+  {
+    "id": "28383085-7394-4fd8-8918-154543204a6c",
+    "timestamp": "2025-10-17T08:31:02.992Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 5,
+      "primitive": "CONDITION_EVALUATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Unexpected token '='",
+      "inputSample": {
+        "condition": "household.income_calculated  ==  true  &&  household.credit_determined  != = true",
+        "ruleName": "determine_credit_score"
+      },
+      "outputSample": {
+        "result": false,
+        "error": "Unexpected token '='"
+      },
+      "timestamp": "2025-10-17T08:31:02.992Z"
+    },
+    "hash": "ffd7b3cb4fbb39b486a8c5a0019149f3d587a05417b260309e90040a836df673"
+  },
+  {
+    "id": "24058297-8a13-44fd-b381-60b2a0cc2994",
+    "timestamp": "2025-10-17T08:31:02.993Z",
+    "operation": "CONDITION_EVALUATOR",
+    "payload": {
+      "input": {
+        "condition": "household.income_calculated  ==  true  &&  household.credit_determined  != = true",
+        "ruleName": "determine_credit_score"
+      },
+      "output": {
+        "result": false,
+        "error": "Unexpected token '='"
+      }
+    },
+    "hash": "c4fc24c3eadab1df5dac1e64d11c73d442db7a6343a72ef47c83274bf41df26f"
+  },
+  {
+    "id": "a2dc38e4-a950-4634-ba30-1b242246fd56",
+    "timestamp": "2025-10-17T08:31:02.993Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 6,
+      "primitive": "RULE_APPLICATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+      "inputSample": {
+        "ruleId": "determine_credit_score",
+        "priority": 3
+      },
+      "outputSample": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "household.income_calculated  ==  true  &&  household.credit_determined  != = true",
+        "ruleId": "determine_credit_score"
+      },
+      "timestamp": "2025-10-17T08:31:02.993Z"
+    },
+    "hash": "694c88b2570955a3b6ac337b7725f69f9ae432bb714c3908d078735a08e8ae61"
+  },
+  {
+    "id": "248cc700-4e02-4e1b-8849-0ee3f9c272fe",
+    "timestamp": "2025-10-17T08:31:02.993Z",
+    "operation": "RULE_APPLICATOR",
+    "payload": {
+      "input": {
+        "ruleId": "determine_credit_score",
+        "priority": 3,
+        "condition": "household.income_calculated  ==  true  &&  household.credit_determined  != = true",
+        "assignments": {
+          "household.credit_score": "{{co_applicant.exists ? Math.min(applicant.credit_score, co_applicant.credit_score) : applicant.credit_score}}",
+          "household.credit_determined": "true"
+        },
+        "enabled": true
+      },
+      "output": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "household.income_calculated  ==  true  &&  household.credit_determined  != = true",
+        "ruleId": "determine_credit_score"
+      }
+    },
+    "hash": "215cb425bb52dcba24f07cb01580b4f8930e6d87b7fd55a2b9806d25997edf55"
+  },
+  {
+    "id": "bcd07546-8d62-4dfc-bf4d-758b48e26e82",
+    "timestamp": "2025-10-17T08:31:02.994Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 7,
+      "primitive": "CONDITION_EVALUATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Unexpected token '='",
+      "inputSample": {
+        "condition": "loan.down_payment  >  0  &&  loan.down_payment_validated  != = true",
+        "ruleName": "validate_down_payment"
+      },
+      "outputSample": {
+        "result": false,
+        "error": "Unexpected token '='"
+      },
+      "timestamp": "2025-10-17T08:31:02.994Z"
+    },
+    "hash": "e5c7feb49954ed84a2fea7ebf04a30dc7509d63dc67b545a02b205abb073d1eb"
+  },
+  {
+    "id": "54130f6c-8d96-4eb2-baeb-7b6bf1cdbcb6",
+    "timestamp": "2025-10-17T08:31:02.994Z",
+    "operation": "CONDITION_EVALUATOR",
+    "payload": {
+      "input": {
+        "condition": "loan.down_payment  >  0  &&  loan.down_payment_validated  != = true",
+        "ruleName": "validate_down_payment"
+      },
+      "output": {
+        "result": false,
+        "error": "Unexpected token '='"
+      }
+    },
+    "hash": "e9046a05153db70e6a7e13145394589521f57c28c7c8ed699ee5b7f1987aa571"
+  },
+  {
+    "id": "8014a125-d526-4720-a350-0efd000608f0",
+    "timestamp": "2025-10-17T08:31:02.994Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 8,
+      "primitive": "RULE_APPLICATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+      "inputSample": {
+        "ruleId": "validate_down_payment",
+        "priority": 4
+      },
+      "outputSample": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "loan.down_payment  >  0  &&  loan.down_payment_validated  != = true",
+        "ruleId": "validate_down_payment"
+      },
+      "timestamp": "2025-10-17T08:31:02.994Z"
+    },
+    "hash": "c6593b6bc5091d02dde476ee057f415fd4f8ad6ebdf73d0e8b351a7ced8528d0"
+  },
+  {
+    "id": "9f52fcf0-4000-4d96-a6f7-10236009e69b",
+    "timestamp": "2025-10-17T08:31:02.994Z",
+    "operation": "RULE_APPLICATOR",
+    "payload": {
+      "input": {
+        "ruleId": "validate_down_payment",
+        "priority": 4,
+        "condition": "loan.down_payment  >  0  &&  loan.down_payment_validated  != = true",
+        "assignments": {
+          "loan.down_payment_percent": "{{(loan.down_payment / property.purchase_price) * 100}}",
+          "loan.ltv_ratio": "{{((property.purchase_price - loan.down_payment) / property.purchase_price) * 100}}",
+          "loan.down_payment_validated": "true"
+        },
+        "enabled": true
+      },
+      "output": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "loan.down_payment  >  0  &&  loan.down_payment_validated  != = true",
+        "ruleId": "validate_down_payment"
+      }
+    },
+    "hash": "19b078f18b36d82a7994490e19180f841625911fd1d45ec3b5214c4d545063da"
+  },
+  {
+    "id": "1db95471-a0fa-4825-ae02-3e729c33e2de",
+    "timestamp": "2025-10-17T08:31:02.994Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 9,
+      "primitive": "CONDITION_EVALUATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Unexpected token '='",
+      "inputSample": {
+        "condition": "household.credit_score  >  0  &&  loan.interest_rate  ==  0  &&  loan.rate_determined  != = true",
+        "ruleName": "determine_interest_rate"
+      },
+      "outputSample": {
+        "result": false,
+        "error": "Unexpected token '='"
+      },
+      "timestamp": "2025-10-17T08:31:02.994Z"
+    },
+    "hash": "4e56cb83d7f9ecd36879fe4cd537aefff44bfa0a2a6dbd193140346a5065fb06"
+  },
+  {
+    "id": "4756c705-f42b-4571-8719-65110797d9c6",
+    "timestamp": "2025-10-17T08:31:02.994Z",
+    "operation": "CONDITION_EVALUATOR",
+    "payload": {
+      "input": {
+        "condition": "household.credit_score  >  0  &&  loan.interest_rate  ==  0  &&  loan.rate_determined  != = true",
+        "ruleName": "determine_interest_rate"
+      },
+      "output": {
+        "result": false,
+        "error": "Unexpected token '='"
+      }
+    },
+    "hash": "aea02eb80f1d89014ba557be14fe05d828d145923d44d1601fb757d90be9fc4d"
+  },
+  {
+    "id": "6e1ac309-b60f-4106-b7c2-73eb80ab8667",
+    "timestamp": "2025-10-17T08:31:02.995Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 10,
+      "primitive": "RULE_APPLICATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+      "inputSample": {
+        "ruleId": "determine_interest_rate",
+        "priority": 5
+      },
+      "outputSample": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "household.credit_score  >  0  &&  loan.interest_rate  ==  0  &&  loan.rate_determined  != = true",
+        "ruleId": "determine_interest_rate"
+      },
+      "timestamp": "2025-10-17T08:31:02.995Z"
+    },
+    "hash": "eb92cbb1d6a7080692992b7ba7b8f65a52ae99a3a49d23cbb8ca14fe504f1fb3"
+  },
+  {
+    "id": "8db3d65c-0263-4954-9c17-8af8a23d2b60",
+    "timestamp": "2025-10-17T08:31:02.995Z",
+    "operation": "RULE_APPLICATOR",
+    "payload": {
+      "input": {
+        "ruleId": "determine_interest_rate",
+        "priority": 5,
+        "condition": "household.credit_score  >  0  &&  loan.interest_rate  ==  0  &&  loan.rate_determined  != = true",
+        "assignments": {
+          "loan.base_rate": "6.75",
+          "loan.credit_adjustment": "{{household.credit_score >= 760 ? -0.5 : household.credit_score >= 720 ? -0.25 : household.credit_score >= 680 ? 0 : household.credit_score >= 640 ? 0.25 : 0.75}}",
+          "loan.ltv_adjustment": "{{loan.ltv_ratio > 80 ? 0.25 : 0}}",
+          "loan.interest_rate": "{{ Number(loan.base_rate + loan.credit_adjustment + loan.ltv_adjustment)}}",
+          "loan.rate_determined": "true"
+        },
+        "enabled": true
+      },
+      "output": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "household.credit_score  >  0  &&  loan.interest_rate  ==  0  &&  loan.rate_determined  != = true",
+        "ruleId": "determine_interest_rate"
+      }
+    },
+    "hash": "4b633dca1074ed7b9f18fd4499b360d1cbb0850684484cbe76ec182deb2031f6"
+  },
+  {
+    "id": "54c30579-227a-45ec-82e0-e55b38fabcf2",
+    "timestamp": "2025-10-17T08:31:02.995Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 11,
+      "primitive": "CONDITION_EVALUATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Unexpected token '='",
+      "inputSample": {
+        "condition": "insurance.mip_calculated  != = true",
+        "ruleName": "require_mip_or_pmi"
+      },
+      "outputSample": {
+        "result": false,
+        "error": "Unexpected token '='"
+      },
+      "timestamp": "2025-10-17T08:31:02.995Z"
+    },
+    "hash": "f032133682165fad61f66171f45facac3e238f52be1e46db8ec41c885c29e80e"
+  },
+  {
+    "id": "981d840d-eab3-422a-aa9f-00c6947fe009",
+    "timestamp": "2025-10-17T08:31:02.995Z",
+    "operation": "CONDITION_EVALUATOR",
+    "payload": {
+      "input": {
+        "condition": "insurance.mip_calculated  != = true",
+        "ruleName": "require_mip_or_pmi"
+      },
+      "output": {
+        "result": false,
+        "error": "Unexpected token '='"
+      }
+    },
+    "hash": "70c8a12b2e29b382c8a79a97d111e106a9be3b4fe985fcf53e57e8b9a71a4f3b"
+  },
+  {
+    "id": "808258f5-d984-4cd5-b06a-2505612742f1",
+    "timestamp": "2025-10-17T08:31:02.995Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 12,
+      "primitive": "RULE_APPLICATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+      "inputSample": {
+        "ruleId": "require_mip_or_pmi",
+        "priority": 6
+      },
+      "outputSample": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "insurance.mip_calculated  != = true",
+        "ruleId": "require_mip_or_pmi"
+      },
+      "timestamp": "2025-10-17T08:31:02.995Z"
+    },
+    "hash": "05b55a5ac81921d83d5824027e84ace7b00925abaf59676ed2a295ac9ee27e13"
+  },
+  {
+    "id": "8cce2483-20c0-42fc-b1c0-8b4d5fe4a9f3",
+    "timestamp": "2025-10-17T08:31:02.995Z",
+    "operation": "RULE_APPLICATOR",
+    "payload": {
+      "input": {
+        "ruleId": "require_mip_or_pmi",
+        "priority": 6,
+        "condition": "insurance.mip_calculated  != = true",
+        "assignments": {
+          "insurance.pmi_required": "true",
+          "insurance.pmi_rate": "{{loan.type == 'fha' ? 0.85 : (loan.ltv_ratio > 80 ? 0.5 : 0)}}",
+          "insurance.pmi_monthly": "{{(loan.requested_amount * (insurance.pmi_rate / 100)) / 12}}",
+          "insurance.mip_calculated": "true"
+        },
+        "enabled": true
+      },
+      "output": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "insurance.mip_calculated  != = true",
+        "ruleId": "require_mip_or_pmi"
+      }
+    },
+    "hash": "0e3c629f1e7aa5a15bccbbc81a7fbe8229a5eca5aa5fbb9ee5e4bd8aa8a2a447"
+  },
+  {
+    "id": "e48ceb45-1a6e-4ab0-9ad4-3da8008454a2",
+    "timestamp": "2025-10-17T08:31:02.995Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 13,
+      "primitive": "CONDITION_EVALUATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Unexpected token '='",
+      "inputSample": {
+        "condition": "loan.interest_rate  >  0  &&  loan.monthly_payment  == = undefined",
+        "ruleName": "calculate_monthly_payment"
+      },
+      "outputSample": {
+        "result": false,
+        "error": "Unexpected token '='"
+      },
+      "timestamp": "2025-10-17T08:31:02.995Z"
+    },
+    "hash": "19d434cdb3b65ea54ed5631e77df791db932624f9c2f7196667557627d95f6dc"
+  },
+  {
+    "id": "19f18675-5ff2-4926-bf0a-6db249b4a139",
+    "timestamp": "2025-10-17T08:31:02.995Z",
+    "operation": "CONDITION_EVALUATOR",
+    "payload": {
+      "input": {
+        "condition": "loan.interest_rate  >  0  &&  loan.monthly_payment  == = undefined",
+        "ruleName": "calculate_monthly_payment"
+      },
+      "output": {
+        "result": false,
+        "error": "Unexpected token '='"
+      }
+    },
+    "hash": "17fa63a5688f0cc5baacb83da3f73c69be2102de63d44e8d0319488b8f5537d9"
+  },
+  {
+    "id": "0486de7e-c7c7-4619-8b02-ae203354ff09",
+    "timestamp": "2025-10-17T08:31:02.996Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 14,
+      "primitive": "RULE_APPLICATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+      "inputSample": {
+        "ruleId": "calculate_monthly_payment",
+        "priority": 7
+      },
+      "outputSample": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "loan.interest_rate  >  0  &&  loan.monthly_payment  == = undefined",
+        "ruleId": "calculate_monthly_payment"
+      },
+      "timestamp": "2025-10-17T08:31:02.996Z"
+    },
+    "hash": "ff629f83acc6f2caf3e815ff7be43bd749d6c6f4179d316aa8cac37e81960c90"
+  },
+  {
+    "id": "6de32a6d-496c-4a83-b22c-7d27cdeeb977",
+    "timestamp": "2025-10-17T08:31:02.996Z",
+    "operation": "RULE_APPLICATOR",
+    "payload": {
+      "input": {
+        "ruleId": "calculate_monthly_payment",
+        "priority": 7,
+        "condition": "loan.interest_rate  >  0  &&  loan.monthly_payment  == = undefined",
+        "assignments": {
+          "loan.monthly_rate": "{{loan.interest_rate / 100 / 12}}",
+          "loan.num_payments": "{{loan.term_years * 12}}",
+          "loan.monthly_principal_interest": "{{ Number(loan.requested_amount * (loan.monthly_rate * Math.pow(1 + loan.monthly_rate, loan.num_payments)) / (Math.pow(1 + loan.monthly_rate, loan.num_payments) - 1))}}",
+          "loan.monthly_payment": "{{Number(loan.monthly_principal_interest) + (Number(property.property_tax_annual / 12)) + (Number(insurance.homeowners_annual / 12)) + Number(property.hoa_monthly || 0) + Number(insurance.pmi_monthly || 0)}}",
+          "loan.payment_calculated": "true"
+        },
+        "enabled": true
+      },
+      "output": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "loan.interest_rate  >  0  &&  loan.monthly_payment  == = undefined",
+        "ruleId": "calculate_monthly_payment"
+      }
+    },
+    "hash": "c49fea797ce7acc3b0e098222f1ab68ead49b06ba48105f845740123f3d4a9ce"
+  },
+  {
+    "id": "7782b54e-51b1-41b2-8d8b-953c9dbf1086",
+    "timestamp": "2025-10-17T08:31:02.996Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 15,
+      "primitive": "CONDITION_EVALUATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Unexpected token '='",
+      "inputSample": {
+        "condition": "loan.payment_calculated  ==  true  &&  ratios.calculated  != = true",
+        "ruleName": "calculate_debt_to_income"
+      },
+      "outputSample": {
+        "result": false,
+        "error": "Unexpected token '='"
+      },
+      "timestamp": "2025-10-17T08:31:02.996Z"
+    },
+    "hash": "24bb4c10c55a43d1bba856d7fea825fd572b0946c4171b51bce3fb78a415ca87"
+  },
+  {
+    "id": "fb514125-8a33-4082-b66a-89785232ed36",
+    "timestamp": "2025-10-17T08:31:02.996Z",
+    "operation": "CONDITION_EVALUATOR",
+    "payload": {
+      "input": {
+        "condition": "loan.payment_calculated  ==  true  &&  ratios.calculated  != = true",
+        "ruleName": "calculate_debt_to_income"
+      },
+      "output": {
+        "result": false,
+        "error": "Unexpected token '='"
+      }
+    },
+    "hash": "8658de4e0e81137512d9d527d76114583830ade5000be36af822bdd6652ca734"
+  },
+  {
+    "id": "798611d2-1e97-4c13-9951-39a1f9bf8f1a",
+    "timestamp": "2025-10-17T08:31:02.996Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 16,
+      "primitive": "RULE_APPLICATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+      "inputSample": {
+        "ruleId": "calculate_debt_to_income",
+        "priority": 8
+      },
+      "outputSample": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "loan.payment_calculated  ==  true  &&  ratios.calculated  != = true",
+        "ruleId": "calculate_debt_to_income"
+      },
+      "timestamp": "2025-10-17T08:31:02.996Z"
+    },
+    "hash": "037cfdc4be19ebc618d2fcb94dd41e1912f1681a51da4bb608ed7c082792beb8"
+  },
+  {
+    "id": "4a9c2577-ef84-4a84-8c41-250505603dce",
+    "timestamp": "2025-10-17T08:31:02.996Z",
+    "operation": "RULE_APPLICATOR",
+    "payload": {
+      "input": {
+        "ruleId": "calculate_debt_to_income",
+        "priority": 8,
+        "condition": "loan.payment_calculated  ==  true  &&  ratios.calculated  != = true",
+        "assignments": {
+          "ratios.monthly_income": "{{household.combined_income / 12}}",
+          "ratios.monthly_debt": "{{household.combined_debt / 12}}",
+          "ratios.housing_ratio": "{{(loan.monthly_payment / ratios.monthly_income) * 100}}",
+          "ratios.debt_to_income": "{{ (Number(ratios.monthly_debt + Number(loan.monthly_payment)) / Number(ratios.monthly_income)) * 100}}",
+          "ratios.calculated": "true"
+        },
+        "enabled": true
+      },
+      "output": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "loan.payment_calculated  ==  true  &&  ratios.calculated  != = true",
+        "ruleId": "calculate_debt_to_income"
+      }
+    },
+    "hash": "54faf947fa4a7ec084008ddf3d7f4fec5217acbedc2cd5dd09b68c36e94bcfc6"
+  },
+  {
+    "id": "46cfa445-944d-4d04-8db4-d2e5bed13a40",
+    "timestamp": "2025-10-17T08:31:02.996Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 17,
+      "primitive": "CONDITION_EVALUATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Unexpected token '='",
+      "inputSample": {
+        "condition": "ratios.housing_ratio  >  0  &&  approval.housing_ratio_checked  != = true",
+        "ruleName": "check_housing_ratio_limit"
+      },
+      "outputSample": {
+        "result": false,
+        "error": "Unexpected token '='"
+      },
+      "timestamp": "2025-10-17T08:31:02.996Z"
+    },
+    "hash": "c77a80cbcde6088a5f60be03f5ffd776f627f70559274e99162970c45f7fed0b"
+  },
+  {
+    "id": "823cf0bd-73bb-4878-834f-b2b66584155d",
+    "timestamp": "2025-10-17T08:31:02.996Z",
+    "operation": "CONDITION_EVALUATOR",
+    "payload": {
+      "input": {
+        "condition": "ratios.housing_ratio  >  0  &&  approval.housing_ratio_checked  != = true",
+        "ruleName": "check_housing_ratio_limit"
+      },
+      "output": {
+        "result": false,
+        "error": "Unexpected token '='"
+      }
+    },
+    "hash": "5e95db612ac999648a855e53ba15ef3bd044304b70c162cbdd7f32cd14b8c3ac"
+  },
+  {
+    "id": "be5f74c8-943f-4f69-aa83-29108c095e0a",
+    "timestamp": "2025-10-17T08:31:02.996Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 18,
+      "primitive": "RULE_APPLICATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+      "inputSample": {
+        "ruleId": "check_housing_ratio_limit",
+        "priority": 9
+      },
+      "outputSample": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "ratios.housing_ratio  >  0  &&  approval.housing_ratio_checked  != = true",
+        "ruleId": "check_housing_ratio_limit"
+      },
+      "timestamp": "2025-10-17T08:31:02.996Z"
+    },
+    "hash": "4851b67b8f6e04a412a05c0f437ae9f4ab9d5a388c68215e63ba3e59007dc271"
+  },
+  {
+    "id": "b1e9aefc-55d8-41bd-adbc-b91d9019ff99",
+    "timestamp": "2025-10-17T08:31:02.997Z",
+    "operation": "RULE_APPLICATOR",
+    "payload": {
+      "input": {
+        "ruleId": "check_housing_ratio_limit",
+        "priority": 9,
+        "condition": "ratios.housing_ratio  >  0  &&  approval.housing_ratio_checked  != = true",
+        "assignments": {
+          "approval.housing_ratio_status": "{{loan.type == 'fha' ? (ratios.housing_ratio <= 31 ? 'pass' : ratios.housing_ratio <= 40 ? 'conditional' : 'fail') : (ratios.housing_ratio <= 28 ? 'pass' : ratios.housing_ratio <= 31 ? 'conditional' : 'fail')}}",
+          "approval.housing_ratio_checked": "true"
+        },
+        "enabled": true
+      },
+      "output": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "ratios.housing_ratio  >  0  &&  approval.housing_ratio_checked  != = true",
+        "ruleId": "check_housing_ratio_limit"
+      }
+    },
+    "hash": "5924439483ae44f9a9bae550d9e5b40ee255403af9630b4aca918c5bd4857bb2"
+  },
+  {
+    "id": "830739e2-3fed-468e-bcf6-6417383c78cf",
+    "timestamp": "2025-10-17T08:31:02.997Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 19,
+      "primitive": "CONDITION_EVALUATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Unexpected token '='",
+      "inputSample": {
+        "condition": "ratios.debt_to_income  >  0  &&  approval.dti_checked  != = true",
+        "ruleName": "check_debt_to_income_limit"
+      },
+      "outputSample": {
+        "result": false,
+        "error": "Unexpected token '='"
+      },
+      "timestamp": "2025-10-17T08:31:02.997Z"
+    },
+    "hash": "e8598a713965acdb233abfe2c396454a561052af325aebd3a5cf064bdbf42408"
+  },
+  {
+    "id": "8e133c2c-97e0-4f9a-a5e8-66e0d1b7ce98",
+    "timestamp": "2025-10-17T08:31:02.997Z",
+    "operation": "CONDITION_EVALUATOR",
+    "payload": {
+      "input": {
+        "condition": "ratios.debt_to_income  >  0  &&  approval.dti_checked  != = true",
+        "ruleName": "check_debt_to_income_limit"
+      },
+      "output": {
+        "result": false,
+        "error": "Unexpected token '='"
+      }
+    },
+    "hash": "a4bec082106b0584e918c22272c41a90f38009495a0d1a7ac54aa168247e0c7d"
+  },
+  {
+    "id": "1af22fe2-2661-4869-8d24-b394169f03f8",
+    "timestamp": "2025-10-17T08:31:02.997Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 20,
+      "primitive": "RULE_APPLICATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+      "inputSample": {
+        "ruleId": "check_debt_to_income_limit",
+        "priority": 10
+      },
+      "outputSample": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "ratios.debt_to_income  >  0  &&  approval.dti_checked  != = true",
+        "ruleId": "check_debt_to_income_limit"
+      },
+      "timestamp": "2025-10-17T08:31:02.997Z"
+    },
+    "hash": "5a41f6e12f9546fd4b39c900b45658f3b5cb300519169e5e2dd298ba810104e3"
+  },
+  {
+    "id": "023353f9-8ecd-4b80-9542-71e902a4fd78",
+    "timestamp": "2025-10-17T08:31:02.997Z",
+    "operation": "RULE_APPLICATOR",
+    "payload": {
+      "input": {
+        "ruleId": "check_debt_to_income_limit",
+        "priority": 10,
+        "condition": "ratios.debt_to_income  >  0  &&  approval.dti_checked  != = true",
+        "assignments": {
+          "approval.dti_status": "{{loan.type == 'fha' ? (ratios.debt_to_income <= 43 ? 'pass' : ratios.debt_to_income <= 50 ? 'conditional' : 'fail') : (ratios.debt_to_income <= 36 ? 'pass' : ratios.debt_to_income <= 43 ? 'conditional' : 'fail')}}",
+          "approval.dti_checked": "true"
+        },
+        "enabled": true
+      },
+      "output": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "ratios.debt_to_income  >  0  &&  approval.dti_checked  != = true",
+        "ruleId": "check_debt_to_income_limit"
+      }
+    },
+    "hash": "6d85e1312f22de44e56cfb35bbe5d430c98d539f66533cc3e442b278583513bc"
+  },
+  {
+    "id": "0ee9ae82-d556-47e1-8e16-8c217164409b",
+    "timestamp": "2025-10-17T08:31:02.997Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 21,
+      "primitive": "CONDITION_EVALUATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Unexpected token '='",
+      "inputSample": {
+        "condition": "household.credit_score  >  0  &&  approval.credit_checked  != = true",
+        "ruleName": "check_credit_requirements"
+      },
+      "outputSample": {
+        "result": false,
+        "error": "Unexpected token '='"
+      },
+      "timestamp": "2025-10-17T08:31:02.997Z"
+    },
+    "hash": "d52f08ea060ed592a1e47aac18ede470c1626c02e1af16d8b726d8ddcc248dab"
+  },
+  {
+    "id": "34ec068c-89f6-41aa-9dae-03210184c0ed",
+    "timestamp": "2025-10-17T08:31:02.997Z",
+    "operation": "CONDITION_EVALUATOR",
+    "payload": {
+      "input": {
+        "condition": "household.credit_score  >  0  &&  approval.credit_checked  != = true",
+        "ruleName": "check_credit_requirements"
+      },
+      "output": {
+        "result": false,
+        "error": "Unexpected token '='"
+      }
+    },
+    "hash": "b2202cbb9b6c5751434ee3a979aaadbcba71639d7b146facd97241280eae6c06"
+  },
+  {
+    "id": "4fd72be3-1069-4323-8b49-2dfbf252445e",
+    "timestamp": "2025-10-17T08:31:02.997Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 22,
+      "primitive": "RULE_APPLICATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+      "inputSample": {
+        "ruleId": "check_credit_requirements",
+        "priority": 11
+      },
+      "outputSample": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "household.credit_score  >  0  &&  approval.credit_checked  != = true",
+        "ruleId": "check_credit_requirements"
+      },
+      "timestamp": "2025-10-17T08:31:02.997Z"
+    },
+    "hash": "a8e60c418eb24432b2e6ce79f489f3ffbe6a5256d2950d858dbc0c238b9f2d13"
+  },
+  {
+    "id": "35a56785-4414-4cd3-8625-17958e12c602",
+    "timestamp": "2025-10-17T08:31:02.997Z",
+    "operation": "RULE_APPLICATOR",
+    "payload": {
+      "input": {
+        "ruleId": "check_credit_requirements",
+        "priority": 11,
+        "condition": "household.credit_score  >  0  &&  approval.credit_checked  != = true",
+        "assignments": {
+          "approval.credit_status": "{{loan.type == 'fha' ? (household.credit_score >= 640 ? 'good' : household.credit_score >= 580 ? 'conditional' : 'insufficient') : (household.credit_score >= 740 ? 'excellent' : household.credit_score >= 680 ? 'good' : household.credit_score >= 620 ? 'conditional' : 'insufficient')}}",
+          "approval.credit_checked": "true"
+        },
+        "enabled": true
+      },
+      "output": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "household.credit_score  >  0  &&  approval.credit_checked  != = true",
+        "ruleId": "check_credit_requirements"
+      }
+    },
+    "hash": "4e6b6f3e8fc76682c7054296655c2683ffd8b76e0ab331b95270973a15e696c7"
+  },
+  {
+    "id": "246532d1-d23f-41e1-9d17-7e4848cb6a41",
+    "timestamp": "2025-10-17T08:31:02.998Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 23,
+      "primitive": "CONDITION_EVALUATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Unexpected token '='",
+      "inputSample": {
+        "condition": "approval.housing_ratio_checked  ==  true  &&  approval.dti_checked  ==  true  &&  approval.credit_checked  ==  true  &&  approval.final_decision  != = true",
+        "ruleName": "determine_final_approval"
+      },
+      "outputSample": {
+        "result": false,
+        "error": "Unexpected token '='"
+      },
+      "timestamp": "2025-10-17T08:31:02.998Z"
+    },
+    "hash": "02f73f8829e7a92db890b20c4b556d2265bd63e66bdc6fce5a67ec84c70c18ac"
+  },
+  {
+    "id": "c07814c8-4174-479a-bd27-573d3d1004ec",
+    "timestamp": "2025-10-17T08:31:02.998Z",
+    "operation": "CONDITION_EVALUATOR",
+    "payload": {
+      "input": {
+        "condition": "approval.housing_ratio_checked  ==  true  &&  approval.dti_checked  ==  true  &&  approval.credit_checked  ==  true  &&  approval.final_decision  != = true",
+        "ruleName": "determine_final_approval"
+      },
+      "output": {
+        "result": false,
+        "error": "Unexpected token '='"
+      }
+    },
+    "hash": "9699511468dc3de35273ef82ccc0b320966c0d0e1fd659aa916d12383fc3bfd7"
+  },
+  {
+    "id": "7fb32a9b-93c7-4c94-81ab-8be4d8b1f509",
+    "timestamp": "2025-10-17T08:31:02.998Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 24,
+      "primitive": "RULE_APPLICATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+      "inputSample": {
+        "ruleId": "determine_final_approval",
+        "priority": 12
+      },
+      "outputSample": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "approval.housing_ratio_checked  ==  true  &&  approval.dti_checked  ==  true  &&  approval.credit_checked  ==  true  &&  approval.final_decision  != = true",
+        "ruleId": "determine_final_approval"
+      },
+      "timestamp": "2025-10-17T08:31:02.998Z"
+    },
+    "hash": "84b2cdad13c6d8f17fb5a20c1bd56c9f3c2307e7e07080201252a099735c8f74"
+  },
+  {
+    "id": "76cfe087-cbd8-447d-adc0-a7b080f0ddff",
+    "timestamp": "2025-10-17T08:31:02.998Z",
+    "operation": "RULE_APPLICATOR",
+    "payload": {
+      "input": {
+        "ruleId": "determine_final_approval",
+        "priority": 12,
+        "condition": "approval.housing_ratio_checked  ==  true  &&  approval.dti_checked  ==  true  &&  approval.credit_checked  ==  true  &&  approval.final_decision  != = true",
+        "assignments": {
+          "approval.can_approve": "{{approval.housing_ratio_status != 'fail' && approval.dti_status != 'fail' && approval.credit_status != 'insufficient'}}",
+          "approval.status": "{{approval.can_approve ? (approval.housing_ratio_status == 'conditional' || approval.dti_status == 'conditional' || approval.credit_status == 'conditional' ? 'conditional_approval' : 'approved') : 'denied'}}",
+          "approval.final_decision": "true"
+        },
+        "enabled": true
+      },
+      "output": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "approval.housing_ratio_checked  ==  true  &&  approval.dti_checked  ==  true  &&  approval.credit_checked  ==  true  &&  approval.final_decision  != = true",
+        "ruleId": "determine_final_approval"
+      }
+    },
+    "hash": "9815704ed38df3ae9869b7552e9662c7b80c7f7bd21595d4af52707f0eb8023a"
+  },
+  {
+    "id": "4cb1feff-2cef-472a-8c0e-e1bb49499110",
+    "timestamp": "2025-10-17T08:31:02.998Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 25,
+      "primitive": "CONDITION_EVALUATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Unexpected token '='",
+      "inputSample": {
+        "condition": "approval.status  ==  'approved'  &&  loan.closing_costs  == = undefined",
+        "ruleName": "calculate_closing_costs"
+      },
+      "outputSample": {
+        "result": false,
+        "error": "Unexpected token '='"
+      },
+      "timestamp": "2025-10-17T08:31:02.998Z"
+    },
+    "hash": "1d39908271f5927b928f1e42bd518f0fb1da85862d9c87c4cbbf50f56209bcc6"
+  },
+  {
+    "id": "0c6cd03b-9751-4588-99cd-f24ff9587a16",
+    "timestamp": "2025-10-17T08:31:02.998Z",
+    "operation": "CONDITION_EVALUATOR",
+    "payload": {
+      "input": {
+        "condition": "approval.status  ==  'approved'  &&  loan.closing_costs  == = undefined",
+        "ruleName": "calculate_closing_costs"
+      },
+      "output": {
+        "result": false,
+        "error": "Unexpected token '='"
+      }
+    },
+    "hash": "b72ef5d2b4a0b8edae6bb83d58056a6f833d9dec341d8ff8996525e8fd157d19"
+  },
+  {
+    "id": "32188760-0903-4e2e-a0a7-e2a5cbb1bcdc",
+    "timestamp": "2025-10-17T08:31:02.998Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 26,
+      "primitive": "RULE_APPLICATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+      "inputSample": {
+        "ruleId": "calculate_closing_costs",
+        "priority": 13
+      },
+      "outputSample": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "approval.status  ==  'approved'  &&  loan.closing_costs  == = undefined",
+        "ruleId": "calculate_closing_costs"
+      },
+      "timestamp": "2025-10-17T08:31:02.998Z"
+    },
+    "hash": "487d6d015ccb6a2d7ffd2b33cbf5214ad96d8e1aac00a20e956c970b331f716f"
+  },
+  {
+    "id": "ee2e1920-5e2f-4406-879b-07c37420b5f8",
+    "timestamp": "2025-10-17T08:31:02.998Z",
+    "operation": "RULE_APPLICATOR",
+    "payload": {
+      "input": {
+        "ruleId": "calculate_closing_costs",
+        "priority": 13,
+        "condition": "approval.status  ==  'approved'  &&  loan.closing_costs  == = undefined",
+        "assignments": {
+          "loan.origination_fee": "{{loan.requested_amount * 0.005}}",
+          "loan.appraisal_fee": "600",
+          "loan.title_insurance": "{{property.purchase_price * 0.003}}",
+          "loan.closing_costs": "{{loan.origination_fee + loan.appraisal_fee + loan.title_insurance + 2500}}",
+          "loan.total_cash_needed": "{{loan.down_payment + loan.closing_costs}}"
+        },
+        "enabled": true
+      },
+      "output": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "approval.status  ==  'approved'  &&  loan.closing_costs  == = undefined",
+        "ruleId": "calculate_closing_costs"
+      }
+    },
+    "hash": "7f0daf0679bd7b26ccee97bb4ea2f69ee7fe3a0d7c6877fd3d5eccc1e6e80bb1"
+  },
+  {
+    "id": "6ddf3a42-1b57-42f4-a71a-477f9c328c0e",
+    "timestamp": "2025-10-17T08:31:02.998Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 27,
+      "primitive": "CONDITION_EVALUATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Unexpected token '='",
+      "inputSample": {
+        "condition": "approval.final_decision  ==  true  &&  loan.processed  != = true",
+        "ruleName": "finalize_loan_processing"
+      },
+      "outputSample": {
+        "result": false,
+        "error": "Unexpected token '='"
+      },
+      "timestamp": "2025-10-17T08:31:02.998Z"
+    },
+    "hash": "fac687a5444e314a9346a1fd2e1faad81fd799d5cb333adb86f16bbd0922fc13"
+  },
+  {
+    "id": "a8f3eff3-d29d-4792-8dd1-aeb7ad3b697b",
+    "timestamp": "2025-10-17T08:31:02.998Z",
+    "operation": "CONDITION_EVALUATOR",
+    "payload": {
+      "input": {
+        "condition": "approval.final_decision  ==  true  &&  loan.processed  != = true",
+        "ruleName": "finalize_loan_processing"
+      },
+      "output": {
+        "result": false,
+        "error": "Unexpected token '='"
+      }
+    },
+    "hash": "f77201177a977ed8133aed1b9c1e96766c2103c577f9d27d5b5a575335d381d8"
+  },
+  {
+    "id": "36742d10-ef23-4a0b-9a91-24863d090b82",
+    "timestamp": "2025-10-17T08:31:02.999Z",
+    "operation": "VIOLATION_RECORDED",
+    "payload": {
+      "tick": 28,
+      "primitive": "RULE_APPLICATOR",
+      "type": "InvariantViolation",
+      "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+      "inputSample": {
+        "ruleId": "finalize_loan_processing",
+        "priority": 14
+      },
+      "outputSample": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "approval.final_decision  ==  true  &&  loan.processed  != = true",
+        "ruleId": "finalize_loan_processing"
+      },
+      "timestamp": "2025-10-17T08:31:02.999Z"
+    },
+    "hash": "497677362d9651f6e4d12ca350576bacbb69f3976996f1940057dca8611d05ae"
+  },
+  {
+    "id": "67886f1a-10ac-4b2b-b11c-6bdfc2fc28ed",
+    "timestamp": "2025-10-17T08:31:02.999Z",
+    "operation": "RULE_APPLICATOR",
+    "payload": {
+      "input": {
+        "ruleId": "finalize_loan_processing",
+        "priority": 14,
+        "condition": "approval.final_decision  ==  true  &&  loan.processed  != = true",
+        "assignments": {
+          "loan.processed": "true",
+          "loan.application_date": "{{now()}}",
+          "loan.reference_number": "{{uuid()}}",
+          "loan.next_step": "{{approval.status == 'approved' ? 'Schedule appraisal and title search' : approval.status == 'conditional_approval' ? 'Submit additional documentation' : 'Consider alternative financing options'}}"
+        },
+        "enabled": true
+      },
+      "output": {
+        "error": "Condition evaluation failed: Unexpected token '='",
+        "condition": "approval.final_decision  ==  true  &&  loan.processed  != = true",
+        "ruleId": "finalize_loan_processing"
+      }
+    },
+    "hash": "0615c5e885b44837ecbae348900ed5410fa9519fdf99709bf6456ce76ab9dba6"
   }
 ]

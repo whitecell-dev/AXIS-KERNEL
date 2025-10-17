@@ -1,10 +1,436 @@
 [
   {
     "tick": 1,
+    "primitive": "CONDITION_EVALUATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Unexpected token '='",
+    "inputSample": {
+      "condition": "applicant.annual_income  >  0  &&  loan.processed  != = true",
+      "ruleName": "calculate_combined_income"
+    },
+    "outputSample": {
+      "result": false,
+      "error": "Unexpected token '='"
+    },
+    "timestamp": "2025-10-17T08:31:02.989Z"
+  },
+  {
+    "tick": 2,
     "primitive": "RULE_APPLICATOR",
     "type": "InvariantViolation",
-    "message": "Unknown primitive: RULE_APPLICATOR",
-    "inputSample": {},
-    "timestamp": "2025-10-17T07:12:00.792Z"
+    "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+    "inputSample": {
+      "ruleId": "calculate_combined_income",
+      "priority": 1
+    },
+    "outputSample": {
+      "error": "Condition evaluation failed: Unexpected token '='",
+      "condition": "applicant.annual_income  >  0  &&  loan.processed  != = true",
+      "ruleId": "calculate_combined_income"
+    },
+    "timestamp": "2025-10-17T08:31:02.991Z"
+  },
+  {
+    "tick": 3,
+    "primitive": "CONDITION_EVALUATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Unexpected token '='",
+    "inputSample": {
+      "condition": "household.income_calculated  ==  true  &&  household.debt_calculated  != = true",
+      "ruleName": "calculate_combined_debt"
+    },
+    "outputSample": {
+      "result": false,
+      "error": "Unexpected token '='"
+    },
+    "timestamp": "2025-10-17T08:31:02.991Z"
+  },
+  {
+    "tick": 4,
+    "primitive": "RULE_APPLICATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+    "inputSample": {
+      "ruleId": "calculate_combined_debt",
+      "priority": 2
+    },
+    "outputSample": {
+      "error": "Condition evaluation failed: Unexpected token '='",
+      "condition": "household.income_calculated  ==  true  &&  household.debt_calculated  != = true",
+      "ruleId": "calculate_combined_debt"
+    },
+    "timestamp": "2025-10-17T08:31:02.992Z"
+  },
+  {
+    "tick": 5,
+    "primitive": "CONDITION_EVALUATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Unexpected token '='",
+    "inputSample": {
+      "condition": "household.income_calculated  ==  true  &&  household.credit_determined  != = true",
+      "ruleName": "determine_credit_score"
+    },
+    "outputSample": {
+      "result": false,
+      "error": "Unexpected token '='"
+    },
+    "timestamp": "2025-10-17T08:31:02.992Z"
+  },
+  {
+    "tick": 6,
+    "primitive": "RULE_APPLICATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+    "inputSample": {
+      "ruleId": "determine_credit_score",
+      "priority": 3
+    },
+    "outputSample": {
+      "error": "Condition evaluation failed: Unexpected token '='",
+      "condition": "household.income_calculated  ==  true  &&  household.credit_determined  != = true",
+      "ruleId": "determine_credit_score"
+    },
+    "timestamp": "2025-10-17T08:31:02.993Z"
+  },
+  {
+    "tick": 7,
+    "primitive": "CONDITION_EVALUATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Unexpected token '='",
+    "inputSample": {
+      "condition": "loan.down_payment  >  0  &&  loan.down_payment_validated  != = true",
+      "ruleName": "validate_down_payment"
+    },
+    "outputSample": {
+      "result": false,
+      "error": "Unexpected token '='"
+    },
+    "timestamp": "2025-10-17T08:31:02.994Z"
+  },
+  {
+    "tick": 8,
+    "primitive": "RULE_APPLICATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+    "inputSample": {
+      "ruleId": "validate_down_payment",
+      "priority": 4
+    },
+    "outputSample": {
+      "error": "Condition evaluation failed: Unexpected token '='",
+      "condition": "loan.down_payment  >  0  &&  loan.down_payment_validated  != = true",
+      "ruleId": "validate_down_payment"
+    },
+    "timestamp": "2025-10-17T08:31:02.994Z"
+  },
+  {
+    "tick": 9,
+    "primitive": "CONDITION_EVALUATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Unexpected token '='",
+    "inputSample": {
+      "condition": "household.credit_score  >  0  &&  loan.interest_rate  ==  0  &&  loan.rate_determined  != = true",
+      "ruleName": "determine_interest_rate"
+    },
+    "outputSample": {
+      "result": false,
+      "error": "Unexpected token '='"
+    },
+    "timestamp": "2025-10-17T08:31:02.994Z"
+  },
+  {
+    "tick": 10,
+    "primitive": "RULE_APPLICATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+    "inputSample": {
+      "ruleId": "determine_interest_rate",
+      "priority": 5
+    },
+    "outputSample": {
+      "error": "Condition evaluation failed: Unexpected token '='",
+      "condition": "household.credit_score  >  0  &&  loan.interest_rate  ==  0  &&  loan.rate_determined  != = true",
+      "ruleId": "determine_interest_rate"
+    },
+    "timestamp": "2025-10-17T08:31:02.995Z"
+  },
+  {
+    "tick": 11,
+    "primitive": "CONDITION_EVALUATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Unexpected token '='",
+    "inputSample": {
+      "condition": "insurance.mip_calculated  != = true",
+      "ruleName": "require_mip_or_pmi"
+    },
+    "outputSample": {
+      "result": false,
+      "error": "Unexpected token '='"
+    },
+    "timestamp": "2025-10-17T08:31:02.995Z"
+  },
+  {
+    "tick": 12,
+    "primitive": "RULE_APPLICATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+    "inputSample": {
+      "ruleId": "require_mip_or_pmi",
+      "priority": 6
+    },
+    "outputSample": {
+      "error": "Condition evaluation failed: Unexpected token '='",
+      "condition": "insurance.mip_calculated  != = true",
+      "ruleId": "require_mip_or_pmi"
+    },
+    "timestamp": "2025-10-17T08:31:02.995Z"
+  },
+  {
+    "tick": 13,
+    "primitive": "CONDITION_EVALUATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Unexpected token '='",
+    "inputSample": {
+      "condition": "loan.interest_rate  >  0  &&  loan.monthly_payment  == = undefined",
+      "ruleName": "calculate_monthly_payment"
+    },
+    "outputSample": {
+      "result": false,
+      "error": "Unexpected token '='"
+    },
+    "timestamp": "2025-10-17T08:31:02.995Z"
+  },
+  {
+    "tick": 14,
+    "primitive": "RULE_APPLICATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+    "inputSample": {
+      "ruleId": "calculate_monthly_payment",
+      "priority": 7
+    },
+    "outputSample": {
+      "error": "Condition evaluation failed: Unexpected token '='",
+      "condition": "loan.interest_rate  >  0  &&  loan.monthly_payment  == = undefined",
+      "ruleId": "calculate_monthly_payment"
+    },
+    "timestamp": "2025-10-17T08:31:02.996Z"
+  },
+  {
+    "tick": 15,
+    "primitive": "CONDITION_EVALUATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Unexpected token '='",
+    "inputSample": {
+      "condition": "loan.payment_calculated  ==  true  &&  ratios.calculated  != = true",
+      "ruleName": "calculate_debt_to_income"
+    },
+    "outputSample": {
+      "result": false,
+      "error": "Unexpected token '='"
+    },
+    "timestamp": "2025-10-17T08:31:02.996Z"
+  },
+  {
+    "tick": 16,
+    "primitive": "RULE_APPLICATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+    "inputSample": {
+      "ruleId": "calculate_debt_to_income",
+      "priority": 8
+    },
+    "outputSample": {
+      "error": "Condition evaluation failed: Unexpected token '='",
+      "condition": "loan.payment_calculated  ==  true  &&  ratios.calculated  != = true",
+      "ruleId": "calculate_debt_to_income"
+    },
+    "timestamp": "2025-10-17T08:31:02.996Z"
+  },
+  {
+    "tick": 17,
+    "primitive": "CONDITION_EVALUATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Unexpected token '='",
+    "inputSample": {
+      "condition": "ratios.housing_ratio  >  0  &&  approval.housing_ratio_checked  != = true",
+      "ruleName": "check_housing_ratio_limit"
+    },
+    "outputSample": {
+      "result": false,
+      "error": "Unexpected token '='"
+    },
+    "timestamp": "2025-10-17T08:31:02.996Z"
+  },
+  {
+    "tick": 18,
+    "primitive": "RULE_APPLICATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+    "inputSample": {
+      "ruleId": "check_housing_ratio_limit",
+      "priority": 9
+    },
+    "outputSample": {
+      "error": "Condition evaluation failed: Unexpected token '='",
+      "condition": "ratios.housing_ratio  >  0  &&  approval.housing_ratio_checked  != = true",
+      "ruleId": "check_housing_ratio_limit"
+    },
+    "timestamp": "2025-10-17T08:31:02.996Z"
+  },
+  {
+    "tick": 19,
+    "primitive": "CONDITION_EVALUATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Unexpected token '='",
+    "inputSample": {
+      "condition": "ratios.debt_to_income  >  0  &&  approval.dti_checked  != = true",
+      "ruleName": "check_debt_to_income_limit"
+    },
+    "outputSample": {
+      "result": false,
+      "error": "Unexpected token '='"
+    },
+    "timestamp": "2025-10-17T08:31:02.997Z"
+  },
+  {
+    "tick": 20,
+    "primitive": "RULE_APPLICATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+    "inputSample": {
+      "ruleId": "check_debt_to_income_limit",
+      "priority": 10
+    },
+    "outputSample": {
+      "error": "Condition evaluation failed: Unexpected token '='",
+      "condition": "ratios.debt_to_income  >  0  &&  approval.dti_checked  != = true",
+      "ruleId": "check_debt_to_income_limit"
+    },
+    "timestamp": "2025-10-17T08:31:02.997Z"
+  },
+  {
+    "tick": 21,
+    "primitive": "CONDITION_EVALUATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Unexpected token '='",
+    "inputSample": {
+      "condition": "household.credit_score  >  0  &&  approval.credit_checked  != = true",
+      "ruleName": "check_credit_requirements"
+    },
+    "outputSample": {
+      "result": false,
+      "error": "Unexpected token '='"
+    },
+    "timestamp": "2025-10-17T08:31:02.997Z"
+  },
+  {
+    "tick": 22,
+    "primitive": "RULE_APPLICATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+    "inputSample": {
+      "ruleId": "check_credit_requirements",
+      "priority": 11
+    },
+    "outputSample": {
+      "error": "Condition evaluation failed: Unexpected token '='",
+      "condition": "household.credit_score  >  0  &&  approval.credit_checked  != = true",
+      "ruleId": "check_credit_requirements"
+    },
+    "timestamp": "2025-10-17T08:31:02.997Z"
+  },
+  {
+    "tick": 23,
+    "primitive": "CONDITION_EVALUATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Unexpected token '='",
+    "inputSample": {
+      "condition": "approval.housing_ratio_checked  ==  true  &&  approval.dti_checked  ==  true  &&  approval.credit_checked  ==  true  &&  approval.final_decision  != = true",
+      "ruleName": "determine_final_approval"
+    },
+    "outputSample": {
+      "result": false,
+      "error": "Unexpected token '='"
+    },
+    "timestamp": "2025-10-17T08:31:02.998Z"
+  },
+  {
+    "tick": 24,
+    "primitive": "RULE_APPLICATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+    "inputSample": {
+      "ruleId": "determine_final_approval",
+      "priority": 12
+    },
+    "outputSample": {
+      "error": "Condition evaluation failed: Unexpected token '='",
+      "condition": "approval.housing_ratio_checked  ==  true  &&  approval.dti_checked  ==  true  &&  approval.credit_checked  ==  true  &&  approval.final_decision  != = true",
+      "ruleId": "determine_final_approval"
+    },
+    "timestamp": "2025-10-17T08:31:02.998Z"
+  },
+  {
+    "tick": 25,
+    "primitive": "CONDITION_EVALUATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Unexpected token '='",
+    "inputSample": {
+      "condition": "approval.status  ==  'approved'  &&  loan.closing_costs  == = undefined",
+      "ruleName": "calculate_closing_costs"
+    },
+    "outputSample": {
+      "result": false,
+      "error": "Unexpected token '='"
+    },
+    "timestamp": "2025-10-17T08:31:02.998Z"
+  },
+  {
+    "tick": 26,
+    "primitive": "RULE_APPLICATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+    "inputSample": {
+      "ruleId": "calculate_closing_costs",
+      "priority": 13
+    },
+    "outputSample": {
+      "error": "Condition evaluation failed: Unexpected token '='",
+      "condition": "approval.status  ==  'approved'  &&  loan.closing_costs  == = undefined",
+      "ruleId": "calculate_closing_costs"
+    },
+    "timestamp": "2025-10-17T08:31:02.998Z"
+  },
+  {
+    "tick": 27,
+    "primitive": "CONDITION_EVALUATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Unexpected token '='",
+    "inputSample": {
+      "condition": "approval.final_decision  ==  true  &&  loan.processed  != = true",
+      "ruleName": "finalize_loan_processing"
+    },
+    "outputSample": {
+      "result": false,
+      "error": "Unexpected token '='"
+    },
+    "timestamp": "2025-10-17T08:31:02.998Z"
+  },
+  {
+    "tick": 28,
+    "primitive": "RULE_APPLICATOR",
+    "type": "InvariantViolation",
+    "message": "Primitive error: Condition evaluation failed: Unexpected token '='",
+    "inputSample": {
+      "ruleId": "finalize_loan_processing",
+      "priority": 14
+    },
+    "outputSample": {
+      "error": "Condition evaluation failed: Unexpected token '='",
+      "condition": "approval.final_decision  ==  true  &&  loan.processed  != = true",
+      "ruleId": "finalize_loan_processing"
+    },
+    "timestamp": "2025-10-17T08:31:02.999Z"
   }
 ]
