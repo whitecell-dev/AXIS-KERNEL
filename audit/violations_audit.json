@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "tick": 1,
+    "primitive": "RULE_APPLICATOR",
+    "type": "InvariantViolation",
+    "message": "Unknown primitive: RULE_APPLICATOR",
+    "inputSample": {},
+    "timestamp": "2025-10-17T07:12:00.792Z"
+  }
+]

@@ -1,57 +1,16 @@
 [
   {
-    "id": "545e3012-44c5-41a8-8151-db3f1bd9b65b",
-    "timestamp": "2025-10-11T09:05:37.117Z",
-    "operation": "EXPRESSION_EVALUATOR",
+    "id": "e16f1818-2965-4098-8b96-b9ee5586d759",
+    "timestamp": "2025-10-17T07:12:00.792Z",
+    "operation": "VIOLATION_RECORDED",
     "payload": {
-      "input": {
-        "expression": "applicant.score1 + applicant.score2",
-        "context": {
-          "applicant": {
-            "score1": 0.7,
-            "score2": 0.8
-          }
-        }
-      },
-      "output": {
-        "value": 1.5
-      }
+      "tick": 1,
+      "primitive": "RULE_APPLICATOR",
+      "type": "InvariantViolation",
+      "message": "Unknown primitive: RULE_APPLICATOR",
+      "inputSample": {},
+      "timestamp": "2025-10-17T07:12:00.792Z"
     },
-    "hash": "6707ca28050b75f994812fee9ac470768851893998b2d2fde984647fa2594cae"
-  },
-  {
-    "id": "3fb0e9f8-4e41-4fca-9f6b-70a1a3909ef4",
-    "timestamp": "2025-10-11T09:05:37.131Z",
-    "operation": "COMPOSITE_SCORER",
-    "payload": {
-      "input": {
-        "scores": [
-          0.7,
-          0.8,
-          0.9
-        ]
-      },
-      "output": {
-        "normalized_score": 0.7999999999999999
-      }
-    },
-    "hash": "b3fbd959f4268ab2bfc7304b998ff8b114153cfd156c9fda78472b9eb9b98258"
-  },
-  {
-    "id": "38a3fe31-7175-404c-bb15-4c52a9048b74",
-    "timestamp": "2025-10-11T09:05:37.132Z",
-    "operation": "STATE_MUTATOR",
-    "payload": {
-      "input": {
-        "path": "decision.status",
-        "value": "pending"
-      },
-      "output": {
-        "success": true,
-        "updatedPath": "decision.status",
-        "newValue": "pending"
-      }
-    },
-    "hash": "d2fb9f61c714bdcc8f424aac6626847e3e01b72542ae7b8e8cca396f7fb5f08f"
+    "hash": "7978b31fb4c4a17c8b8ed9dadd100c8dd0d7a90d13e14f347c99d4fb95cc7dff"
   }
 ]

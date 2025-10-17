@@ -1,0 +1,28 @@
+{
+  "snapshot": {
+    "runId": "run_1760685120793",
+    "timestamp": "2025-10-17T07:12:00.793Z",
+    "engineVersion": "3.1.0-hardened",
+    "timing": {
+      "durationMs": 1
+    },
+    "primitives": {},
+    "invariants": {
+      "violations": 1,
+      "violationsByType": {
+        "Unknown primitive": 1
+      },
+      "checksPassed": 0
+    },
+    "execution": {
+      "totalTicks": 1,
+      "haltedEarly": false,
+      "options": {
+        "haltOnError": false,
+        "collectAllViolations": true,
+        "logLevel": "normal"
+      }
+    },
+    "outcome": "violation_detected"
+  }
+}
